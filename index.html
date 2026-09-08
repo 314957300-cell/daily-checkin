@@ -1013,6 +1013,45 @@ function mobiStatus() {
   return {label:"思维拓展", tag:"拓展", text:"不做新题，用思维游戏拓展数感与逻辑"};
 }
 
+/* ============ 小宇宙播客推荐池（读书/女性成长/财经/科技） ============ */
+const PODCAST_POOL = {
+  book:[
+    {name:"文化有限", ep:"每周一本书的共读", note:"三位主播对谈，轻松有深度"},
+    {name:"不把天聊死", ep:"文学与生活", note:"慢节奏的文学漫谈"},
+    {name:"日谈公园", ep:"书与人的故事", note:"李志明主持，嘉宾多样"},
+    {name:"随机波动", ep:"读书与思考", note:"三位女性主播，视角细腻"}
+  ],
+  growth:[
+    {name:"展开讲讲", ep:"女性成长与文化观察", note:"三位媒体人主播，犀利有趣"},
+    {name:"随机波动", ep:"女性与社会议题", note:"女性主义视角的深度讨论"},
+    {name:"不合时宜", ep:"女性成长与职场", note:"独立女性的成长故事"},
+    {name:"故事FM", ep:"真实人生故事", note:"普通人的非凡经历"}
+  ],
+  finance:[
+    {name:"半拿铁", ep:"商业与财经故事", note:"用故事讲商业逻辑"},
+    {name:"商业就是这样", ep:"商业案例拆解", note:"第一财经出品，专业易懂"},
+    {name:"疯投圈", ep:"投资与商业", note:"投资人视角看项目"},
+    {name:"晚点聊", ep:"科技商业报道", note:"晚点团队出品，深度访谈"}
+  ],
+  tech:[
+    {name:"硅谷早知道", ep:"硅谷科技动态", note:"徐涛主持，前沿科技解读"},
+    {name:"科技乱炖", ep:"科技圈热点", note:"轻松聊科技产品与趋势"},
+    {name:"商业就是这样", ep:"科技商业", note:"科技公司商业分析"},
+    {name:"声东击西", ep:"科技与社会", note:"跨文化视角看科技"}
+  ]
+};
+const PODCAST_CATS = [
+  {key:"book", label:"📚 读书", color:"#E883AF"},
+  {key:"growth", label:"🌷 女性成长", color:"#F6BFDA"},
+  {key:"finance", label:"💰 财经", color:"#FFB8D1"},
+  {key:"tech", label:"💡 科技", color:"#E883AF"}
+];
+function todayPodcast(){
+  const cat = PODCAST_CATS[dayOfYear() % PODCAST_CATS.length];
+  const list = PODCAST_POOL[cat.key];
+  const item = list[Math.floor(dayOfYear()/PODCAST_CATS.length) % list.length];
+  return {...cat, ...item};
+}
 /* ============ 数据定义 ============ */
 const MOM_DATA = [
   {
@@ -1111,45 +1150,7 @@ const MOM_DATA = [
   }
 ];
 
-/* ============ 小宇宙播客推荐池（读书/女性成长/财经/科技） ============ */
-const PODCAST_POOL = {
-  book:[
-    {name:"文化有限", ep:"每周一本书的共读", note:"三位主播对谈，轻松有深度"},
-    {name:"不把天聊死", ep:"文学与生活", note:"慢节奏的文学漫谈"},
-    {name:"日谈公园", ep:"书与人的故事", note:"李志明主持，嘉宾多样"},
-    {name:"随机波动", ep:"读书与思考", note:"三位女性主播，视角细腻"}
-  ],
-  growth:[
-    {name:"展开讲讲", ep:"女性成长与文化观察", note:"三位媒体人主播，犀利有趣"},
-    {name:"随机波动", ep:"女性与社会议题", note:"女性主义视角的深度讨论"},
-    {name:"不合时宜", ep:"女性成长与职场", note:"独立女性的成长故事"},
-    {name:"故事FM", ep:"真实人生故事", note:"普通人的非凡经历"}
-  ],
-  finance:[
-    {name:"半拿铁", ep:"商业与财经故事", note:"用故事讲商业逻辑"},
-    {name:"商业就是这样", ep:"商业案例拆解", note:"第一财经出品，专业易懂"},
-    {name:"疯投圈", ep:"投资与商业", note:"投资人视角看项目"},
-    {name:"晚点聊", ep:"科技商业报道", note:"晚点团队出品，深度访谈"}
-  ],
-  tech:[
-    {name:"硅谷早知道", ep:"硅谷科技动态", note:"徐涛主持，前沿科技解读"},
-    {name:"科技乱炖", ep:"科技圈热点", note:"轻松聊科技产品与趋势"},
-    {name:"商业就是这样", ep:"科技商业", note:"科技公司商业分析"},
-    {name:"声东击西", ep:"科技与社会", note:"跨文化视角看科技"}
-  ]
-};
-const PODCAST_CATS = [
-  {key:"book", label:"📚 读书", color:"#E883AF"},
-  {key:"growth", label:"🌷 女性成长", color:"#F6BFDA"},
-  {key:"finance", label:"💰 财经", color:"#FFB8D1"},
-  {key:"tech", label:"💡 科技", color:"#E883AF"}
-];
-function todayPodcast(){
-  const cat = PODCAST_CATS[dayOfYear() % PODCAST_CATS.length];
-  const list = PODCAST_POOL[cat.key];
-  const item = list[Math.floor(dayOfYear()/PODCAST_CATS.length) % list.length];
-  return {...cat, ...item};
-}
+
 
 const BABY_DATA = [
   {
