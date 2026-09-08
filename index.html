@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#6f93b0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="共长台" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="apple-touch-icon" href="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%20flat%20app%20icon%2C%20calm%20blue%20ocean%20with%20a%20small%20white%20sailboat%2C%20soft%20pastel%20blue%20sky%2C%20rounded%20square%20app%20icon%20style%2C%20clean%20simple%2C%20soft%20blue%20color%20palette&image_size=square_hd" />
+<link rel="icon" href="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%20flat%20app%20icon%2C%20calm%20blue%20ocean%20with%20a%20small%20white%20sailboat%2C%20soft%20pastel%20blue%20sky%2C%20rounded%20square%20app%20icon%20style%2C%20clean%20simple%2C%20soft%20blue%20color%20palette&image_size=square_hd" />
+<link rel="manifest" href='data:application/manifest+json,{"name":"%E5%85%B1%E9%95%BF%E5%8F%B0","short_name":"%E5%85%B1%E9%95%BF%E5%8F%B0","start_url":".","display":"standalone","background_color":"%23e4ebf1","theme_color":"%236f93b0","icons":[{"src":"https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%2520flat%2520app%2520icon%252C%2520calm%2520blue%2520ocean%2520with%2520a%2520small%2520white%2520sailboat%252C%2520soft%2520pastel%2520blue%2520sky%252C%2520rounded%2520square%2520app%2520icon%2520style%252C%2520clean%2520simple%252C%2520soft%2520blue%2520color%2520palette&image_size=square_hd","sizes":"512x512","type":"image/png","purpose":"any"}]}' />
+<title>共长台 · 打卡工作台</title>
+<style>
+  :root {
+    --bg: #e4ebf1;
+    --bg-soft: #eef2f6;
+    --card: #ffffff;
+    --primary: #6f93b0;
+    --primary-light: #b9cfe0;
+    --primary-dark: #4d7391;
+    --accent: #8fc1a8;
+    --accent-dark: #5fa07f;
+    --blue: #7aa3c9;
+    --purple: #a8b4cc;
+    --yellow: #e8c98a;
+    --pink: #dca89e;
+    --text: #4a5560;
+    --text-light: #8b95a0;
+    --border: #e2e8ee;
+    --shadow: 0 6px 24px rgba(111, 147, 176, 0.12);
+    --shadow-hover: 0 10px 32px rgba(111, 147, 176, 0.20);
+    --cream: #f5e6c8;
+    --sky: #cddce8;
+    --rose: #ecd5cf;
+    --mist: #d2e0ea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg);
+    background-image: url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=calm%20blue%20ocean%20sea%20with%20a%20small%20white%20sailboat%20in%20the%20distance%2C%20soft%20pastel%20light%20blue%20water%2C%20gentle%20ripples%2C%20clear%20pale%20sky%2C%20peaceful%20dreamy%20aesthetic%2C%20soft%20bokeh%2C%20film%20photography%20style&image_size=landscape_16_9');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  button { font-family: inherit; cursor: pointer; border: none; }
+
+  /* ============ COVER ============ */
+  .cover {
+    position: fixed; inset: 0;
+    background: linear-gradient(160deg, #eaf0f5 0%, #dbe5ee 40%, #cdd9e4 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 100;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    padding: 40px 24px;
+  }
+  .cover.hide { opacity: 0; transform: scale(0.96); pointer-events: none; }
+  .cover-logo {
+    background: #fff;
+    border-radius: 28px;
+    padding: 16px 36px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .cover-logo h1 {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 1px;
+    line-height: 1.15;
+    text-align: center;
+  }
+  .cover-logo h1 small { display: block; font-size: 26px; }
+  .cover-date {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+  .cover-illu {
+    width: 260px; height: 200px;
+    border-radius: 24px;
+    object-fit: cover;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    background: #fff;
+  }
+  .cover-greet {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+  }
+  .cover-slogan {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 32px;
+    opacity: 0.8;
+  }
+  .cover-quote {
+    background: #fff;
+    border-radius: 18px;
+    padding: 16px 28px;
+    font-size: 15px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    margin-bottom: 36px;
+    text-align: center;
+    max-width: 320px;
+  }
+  .cover-btn {
+    background: linear-gradient(135deg, #6f93b0, #4d7391);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px 56px;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(111, 147, 176, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .cover-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(77, 115, 145, 0.5); }
+  .cover-btn:active { transform: translateY(0); }
+
+  /* ============ APP LAYOUT ============ */
+  .app { display: none; min-height: 100vh; }
+  .app.show { display: flex; }
+  .sidebar {
+    width: 92px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 22px 0;
+    gap: 8px;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,0.5);
+  }
+  .sidebar-logo {
+    font-size: 22px; font-weight: 800; color: var(--primary-dark);
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .nav-item {
+    width: 74px;
+    padding: 12px 4px;
+    border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--text-light);
+    font-size: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.6); color: var(--primary-dark); }
+  .nav-item.active { background: var(--primary); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(111,147,176,0.35); }
+  .nav-icon { font-size: 22px; }
+
+  .main { flex: 1; padding: 24px 28px; overflow-y: auto; max-width: 100%; }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    background: linear-gradient(135deg, #fff 0%, #eef2f6 100%);
+    border-radius: 20px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .topbar-left h2 { font-size: 22px; font-weight: 700; }
+  .topbar-left p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+  .topbar-right { text-align: right; }
+  .topbar-time { font-size: 22px; font-weight: 700; color: var(--primary-dark); font-variant-numeric: tabular-nums; }
+  .topbar-weather { font-size: 13px; color: var(--text-light); }
+  .rate-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    margin-top: 6px;
+  }
+
+  /* ============ HOME VIEW ============ */
+  .view { display: none; }
+  .view.active { display: block; }
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .home-grid .stat-card:nth-child(1) { background: var(--cream); }
+  .home-grid .stat-card:nth-child(2) { background: var(--sky); }
+  .home-grid .stat-card:nth-child(3) { background: var(--rose); }
+  .home-grid .stat-card:nth-child(4) { background: var(--mist); }
+  .stat-num { font-size: 30px; font-weight: 800; color: var(--primary-dark); }
+  .stat-num.green { color: #3d7a5e; }
+  .stat-num.blue { color: #4a7ba0; }
+  .stat-label { font-size: 13px; color: var(--text); margin-top: 4px; opacity: 0.85; }
+
+  .quote-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    font-size: 17px;
+    color: var(--text);
+    position: relative;
+  }
+  .quote-card::before { content: "\201C"; font-size: 40px; color: var(--primary-light); position: absolute; top: 8px; left: 14px; }
+  .quote-card span { padding-left: 30px; display: block; }
+  .quote-author { text-align: right; color: var(--text-light); font-size: 13px; margin-top: 8px; }
+  .quote-en { font-size: 13px; color: var(--text-light); font-style: italic; padding-left: 30px; margin-top: 4px; line-height: 1.5; }
+
+  /* weather card */
+  .weather-card {
+    background: var(--card); border-radius: 18px; padding: 18px 22px;
+    box-shadow: var(--shadow); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .weather-left { display: flex; align-items: center; gap: 14px; }
+  .weather-icon { font-size: 44px; }
+  .weather-temp { font-size: 30px; font-weight: 800; color: var(--primary-dark); line-height: 1.1; }
+  .weather-desc { font-size: 13px; color: var(--text-light); }
+  .weather-right { flex: 1; min-width: 200px; border-left: 1px solid var(--border); padding-left: 20px; }
+  .cloth-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .cloth-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .btn-mini {
+    background: var(--bg-soft); border: 1px solid var(--border);
+    padding: 2px 10px; border-radius: 8px; font-size: 12px;
+    color: var(--text); cursor: pointer; transition: all 0.2s;
+  }
+  .btn-mini:hover { background: var(--primary-light); border-color: var(--primary); }
+
+  /* topic card */
+  .topic-card {
+    background: linear-gradient(135deg, #eef2f6, #e0e9f0);
+    border-radius: 18px; padding: 28px;
+    box-shadow: var(--shadow);
+  }
+  .topic-cat {
+    display: inline-block; background: var(--primary); color: #fff;
+    padding: 4px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .topic-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 16px; line-height: 1.4; }
+  .topic-tip {
+    background: #fff; border-radius: 12px; padding: 14px 18px;
+    font-size: 14px; color: var(--text-light); line-height: 1.7;
+  }
+  .topic-tip b { color: var(--primary-dark); }
+
+  /* meal card */
+  .meal-card {
+    background: var(--card); border-radius: 18px; padding: 20px 24px;
+    box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .meal-day { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--primary-dark); }
+  .meal-dish { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .meal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 10px; }
+  .meal-item { background: var(--bg-soft); border-radius: 10px; padding: 10px 12px; }
+  .meal-item-label { font-size: 11px; color: var(--text-light); font-weight: 600; }
+  .meal-item-val { font-size: 13px; color: var(--text); margin-top: 2px; }
+  .meal-cook { font-size: 13px; color: var(--accent-dark); background: #f0faf4; padding: 8px 12px; border-radius: 8px; }
+  .meal-prep { font-size: 13px; color: var(--primary-dark); background: #fff3ec; padding: 8px 12px; border-radius: 8px; margin-top: 8px; }
+  .meal-weekend-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .meal-meal-row { display: flex; gap: 8px; align-items: baseline; }
+  .meal-meal-label { font-weight: 600; color: var(--blue); min-width: 50px; font-size: 14px; }
+
+  .summary-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .summary-card h3 { font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .summary-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .mini-cat {
+    flex: 1; min-width: 130px;
+    background: var(--bg-soft);
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .mini-cat-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .mini-bar { height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .mini-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.4s; }
+  .mini-cat-pct { font-size: 12px; color: var(--text-light); margin-top: 4px; text-align: right; }
+
+  /* ============ CATEGORY CARD ============ */
+  .section-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .badge-small {
+    font-size: 12px; font-weight: 500; color: var(--text-light);
+    background: var(--bg-soft); padding: 3px 10px; border-radius: 999px;
+  }
+  .categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .category {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .category:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .category-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .category-name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .category-icon { font-size: 20px; }
+  .cat-progress {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cat-pct { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .cat-bar { width: 50px; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .cat-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.4s; }
+
+  .tasks { display: flex; flex-direction: column; gap: 6px; }
+  .task {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 10px;
+    cursor: pointer; transition: background 0.2s; user-select: none;
+  }
+  .task:hover { background: var(--bg-soft); }
+  .task.done .task-text { text-decoration: line-through; color: var(--text-light); }
+  .checkbox {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s; background: #fff;
+  }
+  .task.done .checkbox { background: var(--accent); border-color: var(--accent); }
+  .checkbox::after {
+    content: ""; width: 6px; height: 10px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0); transition: transform 0.2s; margin-top: -2px;
+  }
+  .task.done .checkbox::after { transform: rotate(45deg) scale(1); }
+  .task-text { font-size: 14px; flex: 1; }
+  .task-tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary-dark); font-weight: 600;
+    flex-shrink: 0;
+  }
+  .task-tag.green { background: #d8f0e2; color: var(--accent-dark); }
+  .task-tag.blue { background: #dae8f7; color: #4a7fb0; }
+  .task-tag.gray { background: #eee; color: #888; }
+
+  /* suggestion panel */
+  .suggestion {
+    background: var(--bg-soft);
+    border: 1px dashed var(--primary-light);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .suggestion.baby { border-color: #c5ddf2; }
+  .suggestion-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .suggestion.baby .suggestion-title { color: var(--blue); }
+  .suggestion ul { list-style: none; }
+  .suggestion li { padding: 1px 0; }
+  .suggestion li::before { content: "▸ "; color: var(--primary); }
+  .suggestion.baby li::before { color: var(--blue); }
+  .suggestion .tip { color: var(--accent-dark); font-style: italic; margin-top: 6px; font-size: 12px; }
+
+  /* ============ WEEKLY REVIEW ============ */
+  .week-overview {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px;
+    margin-bottom: 20px;
+  }
+  .week-card {
+    background: var(--card); border-radius: 16px; padding: 16px;
+    box-shadow: var(--shadow); text-align: center;
+  }
+  .week-card .num { font-size: 26px; font-weight: 800; color: var(--primary); }
+  .week-card .label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+  .week-bars {
+    background: var(--card); border-radius: 18px; padding: 20px;
+    box-shadow: var(--shadow); margin-bottom: 20px;
+  }
+  .week-bars h3 { font-size: 16px; margin-bottom: 16px; }
+  .bar-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .bar-label { width: 80px; font-size: 13px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 18px; background: var(--bg-soft); border-radius: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s; min-width: 2px; }
+  .bar-pct { width: 42px; text-align: right; font-size: 12px; color: var(--text-light); }
+
+  .unfinished {
+    background: var(--card); border-radius: 18px; padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .unfinished h3 { font-size: 16px; margin-bottom: 12px; }
+  .unfinished-list { display: flex; flex-direction: column; gap: 8px; }
+  .unfinished-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: var(--bg-soft); border-radius: 10px;
+    font-size: 13px;
+  }
+  .unfinished-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
+
+  /* ============ FOOTER ============ */
+  .footer-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+  .btn {
+    padding: 11px 22px; border-radius: 12px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-soft); }
+
+  .toast {
+    position: fixed; top: 24px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: rgba(90, 70, 54, 0.92); color: #fff;
+    padding: 12px 24px; border-radius: 12px; font-size: 14px;
+    transition: transform 0.4s ease; z-index: 200; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .back-cover {
+    position: fixed; top: 16px; right: 16px;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: #fff; box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; z-index: 95;
+    transition: transform 0.2s;
+  }
+  .back-cover:hover { transform: scale(1.1); }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 72px; padding: 14px 0; }
+    .nav-item { width: 58px; font-size: 11px; }
+    .nav-icon { font-size: 18px; }
+    .main { padding: 16px; }
+    .cover-illu { width: 220px; height: 170px; }
+    .cover-greet { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover" id="cover">
+  <div class="cover-date" id="coverDate"></div>
+  <img class="cover-illu" id="coverImg" alt="cover" />
+  <div class="cover-greet">嗨，摇一摇 ☀️</div>
+  <div class="cover-slogan">去拥抱更大的世界 ✨</div>
+  <div class="cover-quote" id="coverQuote">坚持很酷，今天也很棒。</div>
+  <button class="cover-btn" onclick="enterApp()">进入工作台 →</button>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">🌿<br>共长台</div>
+    <div class="nav-item active" data-view="home"><div class="nav-icon">🏠</div>首页</div>
+    <div class="nav-item" data-view="mom"><div class="nav-icon">🎀</div>妈妈</div>
+    <div class="nav-item" data-view="baby"><div class="nav-icon">🐰</div>宝宝</div>
+    <div class="nav-item" data-view="topic"><div class="nav-icon">💿</div>话题</div>
+    <div class="nav-item" data-view="meal"><div class="nav-icon">🥤</div>饮食</div>
+    <div class="nav-item" data-view="week"><div class="nav-icon">☁️</div>复盘</div>
+  </aside>
+
+  <div class="main">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2 id="viewTitle">去拥抱更大的世界 🏠</h2>
+        <p id="viewSubtitle">朝夕相伴，日日生长</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="curTime">--:--:--</div>
+        <div class="topbar-weather" id="curDate">--</div>
+        <div class="rate-badge">完成率 <span id="topRate">0%</span></div>
+      </div>
+    </div>
+
+    <!-- HOME VIEW -->
+    <div class="view active" id="view-home">
+      <div class="home-grid">
+        <div class="stat-card"><div class="stat-num" id="statDone">0</div><div class="stat-label">已打卡</div></div>
+        <div class="stat-card"><div class="stat-num green" id="statTodo">0</div><div class="stat-label">待办事项</div></div>
+        <div class="stat-card"><div class="stat-num blue" id="statRate">0%</div><div class="stat-label">今日完成率</div></div>
+        <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">总任务数</div></div>
+      </div>
+
+      <!-- 天气 + 穿衣建议 -->
+      <div class="weather-card">
+        <div class="weather-left">
+          <div class="weather-icon" id="weatherIcon">☀️</div>
+          <div>
+            <div class="weather-temp" id="weatherTemp">--°</div>
+            <div class="weather-desc" id="weatherDesc">--</div>
+          </div>
+        </div>
+        <div class="weather-right">
+          <div class="cloth-title">👕 今日穿衣建议 <span style="float:right"><button class="btn-mini" onclick="changeCity()">📍 切换城市</button> <button class="btn-mini" onclick="renderWeather()">🔄</button></span></div>
+          <div class="cloth-text" id="clothText">--</div>
+        </div>
+      </div>
+
+      <!-- 每日一言 中英双语 -->
+      <div class="quote-card">
+        <span id="quoteText">慢慢来，比较快。</span>
+        <div class="quote-en" id="quoteEn"></div>
+        <div class="quote-author" id="quoteAuthor">— 佚名</div>
+      </div>
+
+      <!-- 今日概览：妈妈 / 宝宝 拆分 -->
+      <div class="summary-card">
+        <h3>👩 妈妈 · 今日概览</h3>
+        <div class="summary-row" id="summaryMom"></div>
+      </div>
+      <div class="summary-card">
+        <h3>👦 宝宝 · 今日概览</h3>
+        <div class="summary-row" id="summaryBaby"></div>
+      </div>
+    </div>
+
+    <!-- TOPIC VIEW -->
+    <div class="view" id="view-topic">
+      <div class="section-title">💬 每日话题 <span class="badge-small">家庭讨论时间</span></div>
+      <div class="topic-card" id="topicCard"></div>
+      <div class="suggestion" style="margin-top:16px">
+        <div class="suggestion-title">💡 讨论小贴士</div>
+        <ul>
+          <li>每天选一个固定时段（如晚饭后/睡前），10-15分钟即可</li>
+          <li>家长先分享自己的想法，再邀请孩子说，不评判对错</li>
+          <li>顺着孩子的提问延伸，把话题变成探索而非说教</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MEAL VIEW -->
+    <div class="view" id="view-meal">
+      <div class="section-title">🍽️ 健康饮食 <span class="badge-small" id="mealBadge">明日计划</span></div>
+      <div id="mealContent"></div>
+    </div>
+
+    <!-- MOM VIEW -->
+    <div class="view" id="view-mom">
+      <div class="section-title">👩 妈妈打卡 <span class="badge-small" id="momBadge">0/0</span></div>
+      <div class="categories" id="momCategories"></div>
+    </div>
+
+    <!-- BABY VIEW -->
+    <div class="view" id="view-baby">
+      <div class="section-title">👦 宝宝启蒙打卡 <span class="badge-small" id="babyBadge">0/0</span></div>
+      <div class="categories" id="babyCategories"></div>
+    </div>
+
+    <!-- WEEK VIEW -->
+    <div class="view" id="view-week">
+      <div class="section-title">📊 周度复盘 <span class="badge-small" id="weekRange"></span></div>
+      <div class="week-overview">
+        <div class="week-card"><div class="num" id="weekDone">0</div><div class="label">本周已打卡</div></div>
+        <div class="week-card"><div class="num" id="weekRate">0%</div><div class="label">本周完成率</div></div>
+        <div class="week-card"><div class="num" id="weekStreak">0</div><div class="label">连续打卡天数</div></div>
+        <div class="week-card"><div class="num" id="weekBest">0%</div><div class="label">最佳日完成率</div></div>
+      </div>
+      <div class="week-bars">
+        <h3>📈 各分类本周完成率</h3>
+        <div id="weekBars"></div>
+      </div>
+      <div class="unfinished">
+        <h3>⏳ 本周常未完成项</h3>
+        <div class="unfinished-list" id="unfinishedList"></div>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-secondary" onclick="exportData()">📋 复制今日打卡</button>
+      <button class="btn btn-secondary" onclick="resetToday()">🔄 重置今日</button>
+    </div>
+  </div>
+</div>
+
+<div class="back-cover" onclick="showCover()" title="返回封面">🌿</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 日期 & 时间 ============ */
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function getWeekStr() {
+  return ["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];
+}
+function getLunarStr() {
+  const lunarMonths = ["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","冬月","腊月"];
+  const cnNums = ["一","二","三","四","五","六","七","八","九","十"];
+  const d = new Date();
+  const lm = (d.getMonth() + 11) % 12;
+  const day = d.getDate();
+  let dayStr;
+  if (day <= 10) dayStr = "初" + cnNums[day-1];
+  else if (day <= 20) dayStr = "十" + (day===10?"":cnNums[day-11]);
+  else if (day < 30) dayStr = "廿" + cnNums[day-21];
+  else dayStr = "三十";
+  return `${lunarMonths[lm]}${dayStr}`;
+}
+function isWeekend() { const w = new Date().getDay(); return w === 0 || w === 6; }
+function dayOfYear() {
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function updateClock() {
+  const d = new Date();
+  document.getElementById('curTime').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+document.getElementById('coverDate').textContent = `${getTodayStr()} · ${getWeekStr()} · ${getLunarStr()}`;
+document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr()}`;
+
+/* ============ 存储 ============ */
+const STORAGE_KEY = `checkin_${getTodayKey()}`;
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+/* ============ 金句池 ============ */
+const QUOTES = [
+  {cn:"慢慢来，比较快。", en:"Slowly is the fastest way.", a:"佚名 / Anonymous"},
+  {cn:"爱自己，是终身浪漫的开始。", en:"To love oneself is the beginning of a lifelong romance.", a:"王尔德 / Oscar Wilde"},
+  {cn:"种一棵树最好的时间是十年前，其次是现在。", en:"The best time to plant a tree was ten years ago. The second best time is now.", a:"谚语 / Proverb"},
+  {cn:"日拱一卒，功不唐捐。", en:"One step a day, and no effort is ever wasted.", a:"胡适 / Hu Shi"},
+  {cn:"生活明朗，万物可爱。", en:"Life is bright, and all things are lovely.", a:"汪曾祺 / Wang Zengqi"},
+  {cn:"做三四月的事，八九月自有答案。", en:"Sow in March and April, and the answer comes in August and September.", a:"佚名 / Anonymous"},
+  {cn:"你若盛开，清风自来。", en:"If you bloom, the breeze will come.", a:"三毛 / Sanmao"},
+  {cn:"星光不问赶路人，时光不负有心人。", en:"Starlight asks nothing of the traveler; time rewards those who try.", a:"佚名 / Anonymous"},
+  {cn:"愿你走出半生，归来仍是少年。", en:"May you return as young as when you left, after half a lifetime away.", a:"苏轼 / Su Shi"},
+  {cn:"The secret of getting ahead is getting started.", cn:"成功的秘诀在于开始行动。", a:"Mark Twain / 马克·吐温"},
+  {cn:"What lies behind us and what lies before us are tiny matters compared to what lies within us.", en:"", cn2:"与我们内心的东西相比，身后和眼前的都微不足道。", a:"Ralph Waldo Emerson / 爱默生"},
+  {cn:"The only way to do great work is to love what you do.", en:"", cn2:"成就伟大事业的唯一方法，就是热爱你所做的事。", a:"Steve Jobs / 乔布斯"},
+  {cn:"In the middle of every difficulty lies opportunity.", en:"", cn2:"每一个困难之中，都蕴藏着机会。", a:"Albert Einstein / 爱因斯坦"},
+  {cn:"千里之行，始于足下。", en:"A journey of a thousand miles begins with a single step.", a:"老子 / Lao Tzu"},
+  {cn:"Be the change you wish to see in the world.", en:"", cn2:"欲变世界，先变其身。", a:"Mahatma Gandhi / 甘地"}
+];
+function pickQuote() {
+  const q = QUOTES[dayOfYear() % QUOTES.length];
+  // 兼容两种写法：cn为中文时en为英文；cn为英文时cn2为中文
+  const cn = q.cn2 || q.cn;
+  const en = q.en || (q.cn2 ? q.cn : "");
+  return {cn, en, a: q.a};
+}
+const q = pickQuote();
+document.getElementById('coverQuote').textContent = q.cn;
+document.getElementById('quoteText').textContent = q.cn;
+document.getElementById('quoteEn').textContent = q.en;
+document.getElementById('quoteAuthor').textContent = "— " + q.a;
+
+/* ============ 每日话题（家庭/亲子讨论） ============ */
+const DAILY_TOPICS = [
+  {title:"如果可以养一种动物，你想养什么？为什么？", cat:"亲子", tip:"引导孩子说出理由，锻炼表达与因果思维"},
+  {title:"今天你最开心的一件事是什么？", cat:"情绪", tip:"帮助孩子复盘积极情绪，养成感恩习惯"},
+  {title:"人为什么会生病？我们怎么保护身体？", cat:"健康", tip:"聊免疫、卫生、运动，建立健康意识"},
+  {title:"如果你有超能力，你最想做什么？", cat:"想象", tip:"激发想象力，顺便聊责任与帮助他人"},
+  {title:"为什么天是蓝色的？云是怎么形成的？", cat:"科普", tip:"可做简单小实验：杯子倒扣点燃的蜡烛看水面上升"},
+  {title:"遇到不开心的事，你会怎么办？", cat:"情绪", tip:"教孩子情绪命名与调节，允许哭和倾诉"},
+  {title:"钱是怎么来的？我们为什么要工作？", cat:"社会", tip:"建立劳动与价值的初步认知，不拜金不羞于谈钱"},
+  {title:"如果朋友抢了你的玩具，你会怎么做？", cat:"社交", tip:"练习表达需求、协商、寻求帮助的步骤"},
+  {title:"春夏秋冬，你最喜欢哪个季节？为什么？", cat:"自然", tip:"聊季节特征、衣物、节日，串联生活常识"},
+  {title:"你觉得大人和小孩有什么不一样？", cat:"亲子", tip:"听听孩子眼中的大人，增进互相理解"},
+  {title:"为什么我们要读书？读书有什么用？", cat:"成长", tip:"结合孩子喜欢的书，聊知识、想象、乐趣"},
+  {title:"如果今天是世界末日的前一天，你想做什么？", cat:"哲学", tip:"引导思考什么最重要，珍惜当下"},
+  {title:"你做过最勇敢的一件事是什么？", cat:"成长", tip:"肯定勇气，帮孩子建立自我效能感"},
+  {title:"为什么有的人会说不同的语言？", cat:"文化", tip:"聊世界、国家、文化差异，培养开放心态"},
+  {title:"你觉得什么是真正的朋友？", cat:"社交", tip:"聊真诚、分享、互助，建立健康交友观"}
+];
+
+/* ============ Wow English 每日规划 ============ */
+const WOW_ENGLISH_PLAN = [
+  {ep:"Blue 1 - Hello!", focus:"问候语 Hello/Hi/Goodbye，句型 I'm...", task:"看1遍+跟读3句+和孩子角色扮演问候"},
+  {ep:"Blue 2 - What's your name?", focus:"询问姓名 What's your name? I'm...", task:"看1遍+互相问名字+画名字卡片"},
+  {ep:"Blue 3 - How are you?", focus:"问候身体 How are you? I'm fine/happy/sad", task:"看1遍+用情绪表情卡问答"},
+  {ep:"Blue 4 - Numbers 1-10", focus:"数字1-10", task:"看1遍+数家里物品1-10"},
+  {ep:"Blue 5 - Colors", focus:"颜色 red/blue/yellow/green", task:"看1遍+在家找对应颜色物品"},
+  {ep:"Blue 6 - Family", focus:"家庭成员 mother/father/brother/sister", task:"看1遍+介绍自己的家人"},
+  {ep:"Blue 7 - Body", focus:"身体部位 head/eyes/nose/mouth", task:"看1遍+Touch your...游戏"},
+  {ep:"Blue 8 - Food", focus:"食物 apple/banana/bread/milk", task:"看1遍+用英语说三餐食物"},
+  {ep:"Blue 9 - Animals", focus:"动物 cat/dog/bird/fish", task:"看1遍+模仿动物叫声说英语"},
+  {ep:"Blue 10 - Weather", focus:"天气 sunny/rainy/cloudy", task:"看1遍+每天用英语说天气"}
+];
+function todayWow() {
+  return WOW_ENGLISH_PLAN[dayOfYear() % WOW_ENGLISH_PLAN.length];
+}
+
+/* ============ 健康饮食计划（周1-5晚餐 / 周6-7三餐） ============ */
+const MEAL_PLAN = {
+  weekdayDinner: [
+    {day:"周一", dish:"清蒸鲈鱼 + 蒜蓉西兰花 + 杂粮饭", protein:"鲈鱼（优质蛋白+DHA）", fiber:"西兰花", staple:"杂粮饭（糙米+燕麦）", cook:"鲈鱼蒸8分钟，西兰花焯水蒜蓉炒", prep:"提前买鲈鱼1条、西兰花1颗"},
+    {day:"周二", dish:"番茄牛肉炖豆腐 + 清炒菠菜 + 米饭", protein:"牛肉+豆腐（动植物双蛋白）", fiber:"菠菜", staple:"米饭", cook:"牛肉番茄炖30分钟加豆腐，菠菜清炒", prep:"牛腩半斤、番茄2个、嫩豆腐1盒"},
+    {day:"周三", dish:"香煎鸡胸肉 + 凉拌黄瓜木耳 + 玉米", protein:"鸡胸肉（低脂高蛋白）", fiber:"黄瓜+木耳", staple:"玉米（粗粮）", cook:"鸡胸用黑胡椒腌15分钟煎至两面金黄", prep:"鸡胸肉1块、黄瓜1根、干木耳一小把"},
+    {day:"周四", dish:"虾仁滑蛋 + 清炒芦笋 + 红薯", protein:"虾仁+鸡蛋", fiber:"芦笋", staple:"红薯（蒸）", cook:"虾仁与蛋液同炒，芦笋焯水清炒", prep:"虾仁半斤、鸡蛋2个、芦笋1把"},
+    {day:"周五", dish:"香菇蒸鸡腿 + 蚝油生菜 + 紫薯饭", protein:"鸡腿（去皮）", fiber:"生菜+香菇", staple:"紫薯饭", cook:"鸡腿划刀腌20分钟与香菇同蒸20分钟", prep:"鸡腿2个、干香菇5朵、生菜1颗"}
+  ],
+  weekend: [
+    {day:"周六", breakfast:"牛奶燕麦粥 + 水煮蛋 + 蓝莓", lunch:"冬瓜排骨汤 + 清炒时蔬 + 米饭", dinner:"三文鱼刺身/煎 + 牛油果沙拉 + 意面", protein:"排骨/三文鱼+鸡蛋", fiber:"冬瓜/牛油果/时蔬", staple:"燕麦/米饭/意面", prep:"提前买排骨、三文鱼、牛油果"},
+    {day:"周日", breakfast:"全麦面包 + 煎蛋 + 牛奶 + 小番茄", lunch:"番茄鸡蛋面 + 凉拌海带丝", dinner:"清蒸虾 + 蒜蓉娃娃菜 + 南瓜饭", protein:"虾+鸡蛋", fiber:"娃娃菜/海带/小番茄", staple:"全麦面包/面条/南瓜饭", prep:"提前买鲜虾、娃娃菜、南瓜"}
+  ]
+};
+
+/* ============ 运营 & 游戏建议池 ============ */
+const XHS_TOPICS = [
+  "小户型卫生间收纳不打孔｜30元搞定台面",
+  "带娃家庭的5个家居安全改造细节",
+  "50元以内平价软装好物清单",
+  "沉浸式清洁｜厨房台面油污大扫除",
+  "换季衣柜收纳｜这样叠省出一半空间",
+  "宜家9.9元好物封神榜（避坑版）",
+  "独居/宝妈友好的懒人收纳设计",
+  "租房改造｜用一块布拯救丑沙发",
+  "冰箱分区收纳法｜食材一目了然",
+  "玄关收纳｜进门不再乱糟糟",
+  "阳台改造｜1㎡打造治愈小角落",
+  "母婴房布置｜安全又实用的细节",
+  "低成本氛围感｜出租屋也能很温馨",
+  "洞洞板收纳｜小户型墙面利用"
+];
+const XHS_TIPS = [
+  "标题公式：核心词+场景词+痛点词（收纳+卫生间+不打孔）",
+  "首图用改造前后对比图，点击率提升明显",
+  "正文开头3行重复核心关键词，利于搜索收录",
+  "每张图打2-3个精准标签（#收纳神器 #不打孔）",
+  "评论区主动提问引导互动，提升笔记权重",
+  "每日刷同赛道爆款，拆解标题与首图结构"
+];
+const XHS_BENCHMARK = "对标账号：@租房改造小能手（搜索流量打法）、@小居研究所（1㎡空间改造系列）、@西柚与婷婷（低成本改造）";
+
+const DY_TOPICS = [
+  "全职妈妈如何重新找回自我",
+  "30+女性成长必须知道的3个真相",
+  "带娃也能坚持的自我提升清单",
+  "宝妈副业从0到1的真实记录",
+  "停止内耗：妈妈更要先爱自己",
+  "英语渣妈妈的逆袭之路",
+  "黄黑皮护肤的避坑指南",
+  "一个人带娃的高效时间管理",
+  "读书改变了我的哪些认知",
+  "产后身材恢复的真实历程",
+  "普通女生如何开启自媒体",
+  "把日子过好是最大的能力",
+  "35岁+女性的成长清单",
+  "宝妈如何平衡家庭与自我"
+];
+const DY_TIPS = [
+  "前3秒用痛点/反常识钩子抓住注意力",
+  "视频时长控制在23-30秒，保证完播率",
+  "三段式结构：痛点引入→解决方案→价值升华",
+  "结尾留互动问题，提升评论率",
+  "固定19:00-21:00发布（宝妈活跃高峰）",
+  "统一片头片尾，强化人设记忆点"
+];
+const DY_BENCHMARK = "对标账号：@刘安娜Plus（女性成长+商业思维）、@冰姐扒书（读书成长）、陪读妈妈真实记录类账号";
+
+const MATH_GAMES = [
+  "吃饭前数碗筷/水果，建立数与量对应",
+  "上下楼梯正数/倒数练习",
+  "掷骰子比大小、相加（数感）",
+  "扑克牌比大小/凑10游戏",
+  "分水果：理解一样多、多几个",
+  "积木搭高数数（对应与计数）",
+  "冰箱贴数字排序（序数）",
+  "数数家里有几扇门、几把椅子"
+];
+const THINKING_GAMES = [
+  "找规律串珠（ABAB/ABC模式）",
+  "影子配对游戏",
+  "数独入门（3×3图形数独）",
+  "比一比：哪个杯子水多？",
+  "拼图挑战（从4片到12片）",
+  "寻宝游戏：按线索找物品",
+  "记忆翻牌（观察力+记忆力）",
+  "积木搭建指定造型"
+];
+const PINYIN_GAMES = [
+  "拼音卡片钓鱼：钓到就读出来",
+  "找朋友：声母+韵母拼读出字",
+  "用身体摆拼音字母造型",
+  "拼音接龙：一个声母接一个韵母",
+  "拼读小侦探：在家找对应拼音物品",
+  "拼音翻牌配对记忆",
+  "拼音儿歌/口诀大声朗读",
+  "磁力贴拼拼音（声母+韵母+声调）",
+  "声调过山车：四声手势比划",
+  "拼音小老师：教玩偶读拼音",
+  "拼音迷宫：按正确拼读路线走",
+  "听音找卡：家长读，孩子找对应拼音"
+];
+
+/* 居家跟练视频建议（苹果型/悬垂腹/膝盖友好） */
+const WORKOUTS = [
+  {who:"欧阳春晓", name:"10分钟无跑跳有氧燃脂", tag:"有氧", note:"全程站立无跳跃，膝盖友好"},
+  {who:"欧阳春晓", name:"沙漏腰核心训练", tag:"核心", note:"收紧腹横肌，改善悬垂腹"},
+  {who:"周六野", name:"10分钟低冲击全身燃脂", tag:"有氧", note:"无跑跳，适合大基数"},
+  {who:"周六野", name:"瘦大腿内侧+提臀", tag:"臀腿", note:"改善假胯宽，臀腿塑形"},
+  {who:"帕梅拉", name:"15分钟低冲击有氧舞蹈", tag:"有氧", note:"欢乐燃脂，不伤膝"},
+  {who:"帕梅拉", name:"12分钟翘臀训练（无器械）", tag:"臀腿", note:"臀桥+蚌式，强化臀腿"},
+  {who:"安娜", name:"20分钟无跳跃HIIT", tag:"有氧", note:"高强度但低冲击，燃脂高效"},
+  {who:"安娜", name:"臀腿力量训练（自重）", tag:"臀腿", note:"深蹲变式+硬拉，强化下肢"},
+  {who:"MEIZ", name:"居家无器械臀腿塑形", tag:"臀腿", note:"针对苹果型下身塑形"},
+  {who:"MEIZ", name:"15分钟核心激活", tag:"核心", note:"深层核心，修复腹直肌"}
+];
+
+function pick(arr, count, offset) {
+  const r = [];
+  for (let i=0;i<count;i++) r.push(arr[(dayOfYear()+offset+i*3) % arr.length]);
+  return [...new Set(r)].slice(0, count);
+}
+
+/* 摩比3日周期 */
+function mobiStatus() {
+  const c = dayOfYear() % 3;
+  if (c===0) return {label:"今日新篇", tag:"今日", text:"完成1篇摩比爱数学（探索篇）：知识导航+互动课堂+闯关游戏"};
+  if (c===1) return {label:"复习巩固", tag:"复习", text:"复习前天题型，口头复述思路，错题回顾"};
+  return {label:"思维拓展", tag:"拓展", text:"不做新题，用思维游戏拓展数感与逻辑"};
+}
+
+/* ============ 数据定义 ============ */
+const MOM_DATA = [
+  {
+    name:"减重健身", icon:"💪", color:"#6f93b0",
+    tasks:[
+      {id:"m1", text:"居家运动跟练 30分钟", tag:"跟练"},
+      {id:"m2", text:"饮水 2L", tag:"习惯"}
+    ],
+    suggestion:{
+      topics: WORKOUTS.slice(0,0).concat(pick(WORKOUTS.slice(), 3, 1).map(w => `${w.who}｜${w.name}（${w.tag}）— ${w.note}`)),
+      tips:[
+        "苹果型+悬垂腹：先练核心激活（腹横肌），再做有氧，避免卷腹类伤腰动作",
+        "膝盖友好原则：全站立/垫上，无跑无跳，优先臀桥/蚌式/深蹲变式"
+      ],
+      note:"博主跟练方向：欧阳春晓（核心+有氧）、周六野（低冲击燃脂）、帕梅拉（臀腿+有氧舞）、安娜（无跳跃HIIT+臀腿力量）、MEIZ（臀腿塑形）"
+    }
+  },
+  {
+    name:"护肤", icon:"🧴", color:"#b492c9",
+    tasks:[
+      {id:"m3", text:"晨间护肤（洁面+水+精华+乳+防晒）", tag:"早"},
+      {id:"m4", text:"晚间护肤（卸妆洁面+精华+面霜）", tag:"晚"}
+    ],
+    suggestion:{
+      topics:[
+        "晨间：洁面→爽肤水→精华→乳液→防晒霜（黄白皮暗沉重点：维C精华提亮+严格防晒）",
+        "晚间：卸妆→洁面→爽肤水→面膜(周2-3次)→精华→面霜（重点：保湿+修护）",
+        "去角质每周1次，避免过度清洁导致屏障受损"
+      ],
+      tips:[
+        "黄白皮暗沉粗糙：早C晚A（早维C抗氧化，晚A醇修护），建立耐受从低浓度开始",
+        "应季性鼻炎期：简化护肤步骤，只用修护类，避免香精酒精刺激"
+      ],
+      note:"面膜建议：每周2-3次（清洁面膜1次+补水面膜2次），隔天使用不连续敷。"
+    }
+  },
+  {
+    name:"英语学习", icon:"📚", color:"#7ba7d6",
+    tasks:[
+      {id:"m5", text:"多邻国打卡 1 关", tag:"英语"},
+      {id:"m5b", text:"Wow English 自学 1 集", tag:"英语"}
+    ],
+    suggestion:{
+      topics:[
+        "今日 Wow English：" + todayWow().ep,
+        "重点句型：" + todayWow().focus,
+        "跟练任务：" + todayWow().task
+      ],
+      note:"先完整看1遍理解，再跟读重点句型，最后用英语和孩子互动。同一集可重复2-3天直至掌握。"
+    }
+  },
+  {
+    name:"读书", icon:"📖", color:"#7fc4a0",
+    tasks:[
+      {id:"m6", text:"阅读 30 分钟", tag:"输入"}
+    ]
+  },
+  {
+    name:"小红书运营", icon:"📕", color:"#f0c75e",
+    tasks:[
+      {id:"m7", text:"选题构思 / 素材收集", tag:"计划"},
+      {id:"m8", text:"内容创作或发布 1 条", tag:"执行"},
+      {id:"m9", text:"互动回复评论", tag:"互动"}
+    ],
+    suggestion:{
+      topics: pick(XHS_TOPICS, 4, 1),
+      tips: pick(XHS_TIPS, 2, 5),
+      note:`【账号分析】928184780｜家居号 105粉。定位建议：主打「小户型/带娃家庭低成本改造」差异化，用搜索关键词（收纳+不打孔+平价）布局标题首图。${XHS_BENCHMARK}`
+    }
+  },
+  {
+    name:"抖音运营", icon:"🎵", color:"#d6956b",
+    tasks:[
+      {id:"m10", text:"选题 / 脚本构思", tag:"计划"},
+      {id:"m11", text:"拍摄或剪辑 1 条", tag:"执行"},
+      {id:"m12", text:"互动回复 / 数据复盘", tag:"互动"}
+    ],
+    suggestion:{
+      topics: pick(DY_TOPICS, 4, 2),
+      tips: pick(DY_TIPS, 2, 7),
+      note:`【账号分析】54253694621｜女性成长 0粉，2条视频1万播1千赞。完播率好但粉丝转化低，建议强化人设标签（如「全职妈妈的逆袭日记」），固定系列化内容提升追更率。${DY_BENCHMARK}`
+    }
+  }
+];
+
+const BABY_DATA = [
+  {
+    name:"英语启蒙", icon:"🔤", color:"#7ba7d6",
+    tasks:[
+      {id:"b1", text:"上学路上听力输入 10-15min", tag:"早"},
+      {id:"b2", text:"叽里呱啦 Y1 学习", tag:"APP"},
+      {id:"b2b", text:"Wow English 看 1 集", tag:"视频"},
+      {id:"b3", text:"牛津树校园版 1-2 本", tag:"兴趣"},
+      {id:"b4", text:"RAZ aa-c 3-5 本", tag:"分级"}
+    ],
+    suggestion:{
+      topics:[
+        "今日 Wow English：" + todayWow().ep + "（" + todayWow().focus + "）",
+        "互动：" + todayWow().task,
+        "RAZ 三步法：听原音→跟读→做quiz，正确率≥80%再升级",
+        "牛津树：家长指读+孩子跟读，Kipper故事激发兴趣"
+      ],
+      note:"Wow English 真人TPR语速慢，适合启蒙主粮；同一集看3天换新，配合亲子互动效果最佳。"
+    }
+  },
+  {
+    name:"识字阅读", icon:"📖", color:"#7fc4a0",
+    tasks:[
+      {id:"b5", text:"识字复习 / 新字 5-8 个", tag:"识字"},
+      {id:"b6", text:"分级读物共读（小羊上山/阅读树）", tag:"阅读"}
+    ]
+  },
+  {
+    name:"数学思维", icon:"🔢", color:"#6f93b0",
+    tasks:[
+      {id:"b7", text:"摩比爱数学（探索篇）", tag:mobiStatus().tag},
+      {id:"b8", text:"数感训练游戏", tag:"游戏"},
+      {id:"b9", text:"思维逻辑游戏", tag:"游戏"}
+    ],
+    suggestion:{
+      topics:[
+        "今日数感游戏：" + pick(MATH_GAMES,1,3)[0],
+        "今日思维游戏：" + pick(THINKING_GAMES,1,4)[0],
+        "4岁核心：实物操作>纸面练习，在生活中学数学"
+      ],
+      note:"摩比节奏：每3日完成1篇（今日为「" + mobiStatus().label + "」）。" + mobiStatus().text
+    }
+  },
+  {
+    name:"拼音", icon:"🔠", color:"#b492c9",
+    tasks:[
+      {id:"b10", text:"声韵母复习", tag:"复习"},
+      {id:"b11", text:"拼读练习游戏", tag:"游戏"}
+    ],
+    suggestion:{
+      topics:[
+        "今日拼音游戏：" + pick(PINYIN_GAMES,1,6)[0],
+        "先巩固声母+单韵母拼读，再加入复韵母",
+        "用生活化物品拼读，避免机械记忆"
+      ],
+      note:"4岁拼音以「玩中学」为主，不要求书写，重点在认读与拼读兴趣。"
+    }
+  },
+  {
+    name:"科普思维", icon:"🔬", color:"#4fa87a",
+    tasks:[
+      {id:"b12", text:"科普听读（音频/绘本）", tag:"输入"},
+      {id:"b13", text:"思维 / 逻辑小游戏", tag:"游戏"}
+    ]
+  },
+  {
+    name:"手风琴", icon:"🎹", color:"#d6956b",
+    tasks:[
+      {id:"b14", text:"练琴 20-30 分钟", tag:"乐器"}
+    ]
+  },
+  {
+    name:"户外护眼", icon:"🌳", color:"#7fc4a0",
+    tasks:[
+      {id:"b15", text: isWeekend() ? "家庭户外活动 ≥ 2 小时" : "幼儿园户外活动 ≥ 2 小时（园里保证）", tag:"护眼"},
+      {id:"b16", text:"远眺 / 眼保健操", tag:"护眼"}
+    ]
+  },
+  {
+    name:"作息", icon:"😴", color:"#f0c75e",
+    tasks:[
+      {id:"b17", text:"21:00 前上床睡觉", tag:"作息"}
+    ]
+  }
+];
+
+/* ============ 渲染 ============ */
+function tagColor(tag){
+  if(["早","晚"].includes(tag)) return "green";
+  if(["护眼","作息","复习","识字","阅读","输入","乐器"].includes(tag)) return "blue";
+  if(["今日"].includes(tag)) return "";
+  return "gray";
+}
+
+function renderCategories(container, data, isBaby) {
+  container.innerHTML = "";
+  data.forEach(cat => {
+    const total = cat.tasks.length;
+    const done = cat.tasks.filter(t => state[t.id]).length;
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    let tasksHtml = cat.tasks.map(t => {
+      const tc = tagColor(t.tag);
+      return `
+        <div class="task ${state[t.id]?'done':''}" data-id="${t.id}">
+          <div class="checkbox"></div>
+          <div class="task-text">${t.text}</div>
+          <span class="task-tag ${tc}">${t.tag}</span>
+        </div>
+      `;
+    }).join('');
+
+    let sugHtml = "";
+    if (cat.suggestion) {
+      const s = cat.suggestion;
+      const tipsHtml = s.tips && s.tips.length ? `<ul style="margin-top:6px">${s.tips.map(t=>`<li>${t}</li>`).join('')}</ul>` : '';
+      sugHtml = `
+        <div class="suggestion ${isBaby?'baby':''}">
+          <div class="suggestion-title">💡 今日建议</div>
+          <ul>${s.topics.map(t=>`<li>${t}</li>`).join('')}</ul>
+          ${tipsHtml}
+          ${s.note?`<div class="tip">${s.note}</div>`:''}
+        </div>
+      `;
+    }
+
+    const el = document.createElement('div');
+    el.className = "category";
+    el.innerHTML = `
+      <div class="category-head">
+        <div class="category-name"><span class="category-icon">${cat.icon}</span>${cat.name}</div>
+        <div class="cat-progress">
+          <span class="cat-pct">${pct}%</span>
+          <div class="cat-bar"><div class="cat-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+        </div>
+      </div>
+      <div class="tasks">${tasksHtml}</div>
+      ${sugHtml}
+    `;
+    container.appendChild(el);
+  });
+  container.querySelectorAll('.task').forEach(el => {
+    el.addEventListener('click', () => toggleTask(el.dataset.id));
+  });
+}
+
+function toggleTask(id){ state[id]=!state[id]; saveState(state); refresh(); }
+
+function refresh() {
+  renderCategories(document.getElementById('momCategories'), MOM_DATA, false);
+  renderCategories(document.getElementById('babyCategories'), BABY_DATA, true);
+  updateStats();
+  renderSummary();
+  renderWeather();
+}
+
+function updateStats() {
+  const all = [...MOM_DATA, ...BABY_DATA].flatMap(c=>c.tasks);
+  const done = all.filter(t=>state[t.id]).length;
+  const total = all.length;
+  const pct = total?Math.round(done/total*100):0;
+  document.getElementById('topRate').textContent = pct+'%';
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statTodo').textContent = total-done;
+  document.getElementById('statRate').textContent = pct+'%';
+  document.getElementById('statTotal').textContent = total;
+
+  const momT = MOM_DATA.flatMap(c=>c.tasks);
+  const momD = momT.filter(t=>state[t.id]).length;
+  document.getElementById('momBadge').textContent = `${momD}/${momT.length}`;
+
+  const babyT = BABY_DATA.flatMap(c=>c.tasks);
+  const babyD = babyT.filter(t=>state[t.id]).length;
+  document.getElementById('babyBadge').textContent = `${babyD}/${babyT.length}`;
+}
+
+function miniCatHTML(cats) {
+  return cats.map(c => {
+    const total = c.tasks.length;
+    const done = c.tasks.filter(t=>state[t.id]).length;
+    const pct = total?Math.round(done/total*100):0;
+    return `
+      <div class="mini-cat">
+        <div class="mini-cat-name">${c.icon}${c.name}</div>
+        <div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:${c.color}"></div></div>
+        <div class="mini-cat-pct">${done}/${total} · ${pct}%</div>
+      </div>
+    `;
+  }).join('');
+}
+function renderSummary() {
+  document.getElementById('summaryMom').innerHTML = miniCatHTML(MOM_DATA);
+  document.getElementById('summaryBaby').innerHTML = miniCatHTML(BABY_DATA);
+}
+
+/* ============ 天气 & 穿衣（Open-Meteo 真实数据） ============ */
+const WMO_WEATHER = {
+  0:{icon:"☀️", desc:"晴"}, 1:{icon:"🌤️", desc:"大部晴"}, 2:{icon:"⛅", desc:"多云"}, 3:{icon:"☁️", desc:"阴"},
+  45:{icon:"🌫️", desc:"雾"}, 48:{icon:"🌫️", desc:"雾凇"},
+  51:{icon:"🌦️", desc:"小毛毛雨"}, 53:{icon:"🌦️", desc:"毛毛雨"}, 55:{icon:"🌧️", desc:"大毛毛雨"},
+  61:{icon:"🌧️", desc:"小雨"}, 63:{icon:"🌧️", desc:"中雨"}, 65:{icon:"🌧️", desc:"大雨"},
+  71:{icon:"🌨️", desc:"小雪"}, 73:{icon:"🌨️", desc:"中雪"}, 75:{icon:"❄️", desc:"大雪"}, 77:{icon:"❄️", desc:"雪粒"},
+  80:{icon:"🌦️", desc:"小阵雨"}, 81:{icon:"🌧️", desc:"阵雨"}, 82:{icon:"⛈️", desc:"强阵雨"},
+  85:{icon:"🌨️", desc:"小阵雪"}, 86:{icon:"❄️", desc:"强阵雪"},
+  95:{icon:"⛈️", desc:"雷暴"}, 96:{icon:"⛈️", desc:"雷暴伴小冰雹"}, 99:{icon:"⛈️", desc:"雷暴伴大冰雹"}
+};
+
+function clothByTemp(t) {
+  if (t <= 0) return "羽绒服/厚棉衣 + 毛衣 + 保暖内衣，外出围巾手套帽子，宝宝加绒保暖套装";
+  if (t <= 8) return "棉衣/厚外套 + 毛衣 + 保暖内衣，外出戴围巾，宝宝加绒帽+手套";
+  if (t <= 15) return "薄外套/风衣 + 毛衣/卫衣，早晚加件马甲，宝宝备一件薄外套";
+  if (t <= 22) return "长袖 + 薄外套/卫衣，昼夜温差大随身带外套，宝宝洋葱式穿衣";
+  if (t <= 28) return "短袖 + 薄长裤，防晒帽，多补水，宝宝避开正午户外";
+  return "短袖短裤，做好防晒（帽子+防晒霜），多补水，宝宝避免高温时段外出";
+}
+
+let WEATHER_CITY = localStorage.getItem('weather_city') || ''; // 手动指定城市
+let WEATHER_COORDS = null; // {lat, lon, name}
+
+async function fetchWeatherByCoords(lat, lon, name) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m&timezone=auto`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("天气接口请求失败");
+  const data = await res.json();
+  const cur = data.current;
+  const w = WMO_WEATHER[cur.weather_code] || {icon:"🌡️", desc:"未知"};
+  const t = Math.round(cur.temperature_2m);
+  return {
+    icon: w.icon,
+    temp: `${t}°`,
+    desc: `${w.desc} · 湿度${Math.round(cur.relative_humidity_2m)}% · 风速${Math.round(cur.wind_speed_10m)}km/h`,
+    cloth: clothByTemp(t),
+    name: name || `${lat.toFixed(2)}, ${lon.toFixed(2)}`
+  };
+}
+
+async function geocodeCity(name) {
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=zh&format=json`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("城市查询失败");
+  const data = await res.json();
+  if (!data.results || !data.results.length) throw new Error("未找到该城市");
+  const r = data.results[0];
+  return { lat: r.latitude, lon: r.longitude, name: r.name };
+}
+
+function setWeatherUI(info) {
+  document.getElementById('weatherIcon').textContent = info.icon;
+  document.getElementById('weatherTemp').textContent = info.temp;
+  document.getElementById('weatherDesc').textContent = info.desc + (info.name ? ` · ${info.name}` : '');
+  document.getElementById('clothText').textContent = info.cloth;
+}
+
+function setWeatherLoading() {
+  document.getElementById('weatherIcon').textContent = "⏳";
+  document.getElementById('weatherTemp').textContent = "加载中";
+  document.getElementById('weatherDesc').textContent = "正在获取真实天气…";
+  document.getElementById('clothText').textContent = "获取成功后自动生成穿衣建议";
+}
+
+function setWeatherError(msg) {
+  document.getElementById('weatherIcon').textContent = "⚠️";
+  document.getElementById('weatherTemp').textContent = "获取失败";
+  document.getElementById('weatherDesc').textContent = msg;
+  document.getElementById('clothText').textContent = "可点击右侧手动输入城市，或稍后重试";
+}
+
+async function renderWeather() {
+  setWeatherLoading();
+  try {
+    // 优先用手动指定的城市
+    if (WEATHER_CITY) {
+      const c = await geocodeCity(WEATHER_CITY);
+      const info = await fetchWeatherByCoords(c.lat, c.lon, c.name);
+      WEATHER_COORDS = c;
+      setWeatherUI(info);
+      return;
+    }
+    // 否则尝试浏览器定位
+    if (navigator.geolocation) {
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000, enableHighAccuracy: false });
+      });
+      const info = await fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude, "当前位置");
+      WEATHER_COORDS = { lat: pos.coords.latitude, lon: pos.coords.longitude, name: "当前位置" };
+      setWeatherUI(info);
+    } else {
+      throw new Error("浏览器不支持定位");
+    }
+  } catch (e) {
+    // 定位失败时降级到默认城市杭州
+    try {
+      const c = await geocodeCity("杭州");
+      const info = await fetchWeatherByCoords(c.lat, c.lon, c.name);
+      WEATHER_COORDS = c;
+      setWeatherUI(info);
+    } catch (e2) {
+      setWeatherError(e.message || "网络异常，请检查网络后重试");
+    }
+  }
+}
+
+function changeCity() {
+  const city = prompt("请输入城市名称（如：杭州、上海、北京）：", WEATHER_CITY || "");
+  if (city === null) return;
+  WEATHER_CITY = city.trim();
+  if (WEATHER_CITY) localStorage.setItem('weather_city', WEATHER_CITY);
+  else localStorage.removeItem('weather_city');
+  renderWeather();
+}
+
+/* ============ 每日话题 ============ */
+function renderTopic() {
+  const t = DAILY_TOPICS[dayOfYear() % DAILY_TOPICS.length];
+  document.getElementById('topicCard').innerHTML = `
+    <span class="topic-cat">${t.cat}</span>
+    <div class="topic-title">${t.title}</div>
+    <div class="topic-tip"><b>引导方向：</b>${t.tip}</div>
+  `;
+}
+
+/* ============ 健康饮食 ============ */
+function renderMeal() {
+  const today = new Date().getDay(); // 0=周日 1=周一 ... 6=周六
+  // 显示"明日"建议，便于提前备菜
+  const tomorrow = (today + 1) % 7;
+  const isWeekendTomorrow = tomorrow === 0 || tomorrow === 6;
+  const dayNames = ["周日","周一","周二","周三","周四","周五","周六"];
+
+  let html = '';
+  if (isWeekendTomorrow) {
+    const idx = tomorrow === 6 ? 0 : 1; // 周六=0 周日=1
+    const m = MEAL_PLAN.weekend[idx];
+    document.getElementById('mealBadge').textContent = `${dayNames[tomorrow]} · 三餐`;
+    html = `
+      <div class="meal-card">
+        <div class="meal-day">${dayNames[tomorrow]} · 全天食谱</div>
+        <div class="meal-weekend-grid">
+          <div class="meal-meal-row"><span class="meal-meal-label">早餐</span><span>${m.breakfast}</span></div>
+          <div class="meal-meal-row"><span class="meal-meal-label">午餐</span><span>${m.lunch}</span></div>
+          <div class="meal-meal-row"><span class="meal-meal-label">晚餐</span><span>${m.dinner}</span></div>
+        </div>
+        <div class="meal-grid" style="margin-top:14px">
+          <div class="meal-item"><div class="meal-item-label">🥩 蛋白质</div><div class="meal-item-val">${m.protein}</div></div>
+          <div class="meal-item"><div class="meal-item-label">🥬 膳食纤维</div><div class="meal-item-val">${m.fiber}</div></div>
+          <div class="meal-item"><div class="meal-item-label">🍚 主食</div><div class="meal-item-val">${m.staple}</div></div>
+        </div>
+        <div class="meal-prep">🛒 提前备菜：${m.prep}</div>
+      </div>
+    `;
+  } else {
+    const idx = tomorrow - 1; // 周一=0
+    const m = MEAL_PLAN.weekdayDinner[idx];
+    document.getElementById('mealBadge').textContent = `${dayNames[tomorrow]} · 晚餐`;
+    html = `
+      <div class="meal-card">
+        <div class="meal-day">${dayNames[tomorrow]} · 晚餐建议</div>
+        <div class="meal-dish">🍱 ${m.dish}</div>
+        <div class="meal-grid">
+          <div class="meal-item"><div class="meal-item-label">🥩 蛋白质</div><div class="meal-item-val">${m.protein}</div></div>
+          <div class="meal-item"><div class="meal-item-label">🥬 膳食纤维</div><div class="meal-item-val">${m.fiber}</div></div>
+          <div class="meal-item"><div class="meal-item-label">🍚 主食</div><div class="meal-item-val">${m.staple}</div></div>
+        </div>
+        <div class="meal-cook">👨‍🍳 烹饪：${m.cook}</div>
+        <div class="meal-prep">🛒 提前备菜：${m.prep}</div>
+      </div>
+      <div style="background:var(--bg-soft);border-radius:14px;padding:14px 18px;font-size:13px;color:var(--text-light);line-height:1.7">
+        💡 <b>营养原则：</b>每餐保证「一掌心蛋白质 + 两拳蔬菜 + 一拳主食」，烹饪以蒸煮煎为主，少油少盐。宝宝餐少盐不加调料，食材切小块方便咀嚼。
+      </div>
+    `;
+  }
+  document.getElementById('mealContent').innerHTML = html;
+}
+
+/* ============ 导航 ============ */
+const VIEW_TITLES = {
+  home:{t:"去拥抱更大的世界 🏠", s:"朝夕相伴，日日生长"},
+  mom:{t:"👩 妈妈打卡", s:"爱自己，才能更好地爱家人"},
+  baby:{t:"👦 宝宝启蒙打卡", s:"慢慢来，比较快"},
+  topic:{t:"💬 每日话题", s:"餐桌上的亲子时光"},
+  meal:{t:"🍽️ 健康饮食", s:"好好吃饭，是最实在的爱"},
+  week:{t:"📊 周度复盘", s:"看见坚持的力量"}
+};
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    const v = item.dataset.view;
+    document.querySelectorAll('.view').forEach(view=>view.classList.remove('active'));
+    document.getElementById('view-'+v).classList.add('active');
+    document.getElementById('viewTitle').textContent = VIEW_TITLES[v].t;
+    document.getElementById('viewSubtitle').textContent = VIEW_TITLES[v].s;
+    if (v==='week') renderWeekly();
+    if (v==='topic') renderTopic();
+    if (v==='meal') renderMeal();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+/* ============ 周度复盘 ============ */
+function getLastNDays(n) {
+  const days = [];
+  for (let i=n-1; i>=0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  return days;
+}
+function renderWeekly() {
+  const days = getLastNDays(7);
+  const allCats = [...MOM_DATA, ...BABY_DATA];
+  const allTasks = allCats.flatMap(c=>c.tasks);
+  let totalDone = 0, totalAll = 0, bestRate = 0, streak = 0;
+  const catDone = {}, catTotal = {};
+  const taskMissCount = {};
+
+  allCats.forEach(c => { catDone[c.name]=0; catTotal[c.name]=0; });
+
+  days.forEach((dayKey, idx) => {
+    let ds = {};
+    if (dayKey === getTodayKey()) ds = state;
+    else { try { ds = JSON.parse(localStorage.getItem(`checkin_${dayKey}`)) || {}; } catch(e){} }
+
+    let dayDone = 0, dayTotal = 0;
+    allTasks.forEach(t => {
+      dayTotal++;
+      if (ds[t.id]) { dayDone++; totalDone++; }
+      else { taskMissCount[t.text] = (taskMissCount[t.text]||0)+1; }
+    });
+    totalAll += dayTotal;
+    const rate = dayTotal?Math.round(dayDone/dayTotal*100):0;
+    if (rate > bestRate) bestRate = rate;
+
+    allCats.forEach(c => {
+      c.tasks.forEach(t => {
+        catTotal[c.name]++;
+        if (ds[t.id]) catDone[c.name]++;
+      });
+    });
+  });
+
+  // 连续打卡天数（从今天往前数完成率>0的天数）
+  for (let i=days.length-1; i>=0; i--) {
+    const dayKey = days[i];
+    let ds = {};
+    if (dayKey === getTodayKey()) ds = state;
+    else { try { ds = JSON.parse(localStorage.getItem(`checkin_${dayKey}`)) || {}; } catch(e){} }
+    const hasDone = allTasks.some(t=>ds[t.id]);
+    if (hasDone) streak++;
+    else break;
+  }
+
+  const weekRate = totalAll?Math.round(totalDone/totalAll*100):0;
+  document.getElementById('weekDone').textContent = totalDone;
+  document.getElementById('weekRate').textContent = weekRate+'%';
+  document.getElementById('weekStreak').textContent = streak;
+  document.getElementById('weekBest').textContent = bestRate+'%';
+
+  const startDay = days[0].slice(5);
+  const endDay = days[6].slice(5);
+  document.getElementById('weekRange').textContent = `${startDay} ~ ${endDay}`;
+
+  const colors = ["#6f93b0","#a8b4cc","#7aa3c9","#8fc1a8","#e8c98a","#9fb6c4","#5fa07f","#dca89e"];
+  document.getElementById('weekBars').innerHTML = Object.keys(catDone).map((name,i) => {
+    const pct = catTotal[name]?Math.round(catDone[name]/catTotal[name]*100):0;
+    return `
+      <div class="bar-row">
+        <div class="bar-label">${name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[i%colors.length]}"></div></div>
+        <div class="bar-pct">${pct}%</div>
+      </div>
+    `;
+  }).join('');
+
+  // 常未完成项
+  const misses = Object.entries(taskMissCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('unfinishedList').innerHTML = misses.length
+    ? misses.map(([text, cnt]) => `
+        <div class="unfinished-item">
+          <div class="dot"></div>
+          <div>${text}</div>
+          <div style="margin-left:auto;color:var(--text-light);font-size:12px">本周未完成 ${cnt} 次</div>
+        </div>
+      `).join('')
+    : `<div class="unfinished-item" style="justify-content:center;color:var(--text-light)">本周全部完成，太棒了！🎉</div>`;
+}
+
+/* ============ 工具 ============ */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+function resetToday(){
+  if (confirm('确定要重置今日所有打卡吗？')) {
+    state = {}; saveState(state); refresh();
+    showToast('已重置今日打卡');
+  }
+}
+function exportData(){
+  const allCats = [...MOM_DATA.map(c=>({...c,who:'妈妈'})), ...BABY_DATA.map(c=>({...c,who:'宝宝'}))];
+  let text = `📅 ${getTodayStr()} ${getWeekStr()} 打卡汇总\n\n`;
+  allCats.forEach(cat => {
+    const done = cat.tasks.filter(t=>state[t.id]);
+    const undone = cat.tasks.filter(t=>!state[t.id]);
+    if (done.length) { text += `【${cat.who}·${cat.name}】✅\n`; done.forEach(t=>text+=`  ✓ ${t.text}\n`); }
+    if (undone.length) { text += `【${cat.who}·${cat.name}】⬜\n`; undone.forEach(t=>text+=`  · ${t.text}\n`); }
+  });
+  navigator.clipboard.writeText(text).then(
+    ()=>showToast('打卡汇总已复制到剪贴板'),
+    ()=>showToast('复制失败，请手动选择')
+  );
+}
+
+/* ============ 封面 & 插画 ============ */
+const COVER_PROMPT = encodeURIComponent("minimal flat illustration of a row of cute colorful houses with white walls and gabled roofs under a soft pastel light blue sky, gentle morning light, small moon visible, clean simple lines, soft blue and cream color palette, calm cozy feeling, airy background");
+document.getElementById('coverImg').src = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${COVER_PROMPT}&image_size=landscape_4_3`;
+
+function enterApp(){
+  document.getElementById('cover').classList.add('hide');
+  setTimeout(()=>{
+    document.getElementById('app').classList.add('show');
+    refresh();
+  }, 300);
+}
+function showCover(){
+  document.getElementById('app').classList.remove('show');
+  const c = document.getElementById('cover');
+  c.classList.remove('hide');
+}
+
+refresh();
+</script>
+
+</body>
+</html>
