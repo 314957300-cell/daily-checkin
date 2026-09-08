@@ -172,7 +172,10 @@
 
   /* ============ TOP BAR ============ */
   .topbar {
-    background: linear-gradient(135deg, #fff 0%, #FFF0F5 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(255,240,245,0.66) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.9);
     border-radius: 20px;
     padding: 20px 24px;
     box-shadow: var(--shadow);
@@ -220,7 +223,10 @@
   .stat-label { font-size: 13px; color: var(--text); margin-top: 4px; opacity: 0.85; }
 
   .quote-card {
-    background: var(--card);
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,240,245,0.6));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.9);
     border-radius: 18px;
     padding: 20px 24px;
     box-shadow: var(--shadow);
@@ -515,10 +521,10 @@
 <!-- ============ APP ============ -->
 <div class="app" id="app">
   <aside class="sidebar">
-    <div class="sidebar-logo">🎀<br>共长台</div>
+    <div class="sidebar-logo">✨<br>共长台</div>
     <div class="nav-item active" data-view="home"><div class="nav-icon">🏠</div>首页</div>
-    <div class="nav-item" data-view="mom"><div class="nav-icon">🎀</div>妈妈</div>
-    <div class="nav-item" data-view="baby"><div class="nav-icon">💛</div>宝宝</div>
+    <div class="nav-item" data-view="mom"><div class="nav-icon">🎀</div>摇一摇</div>
+    <div class="nav-item" data-view="baby"><div class="nav-icon">💛</div>小哎呦</div>
     <div class="nav-item" data-view="topic"><div class="nav-icon">💬</div>话题</div>
     <div class="nav-item" data-view="meal"><div class="nav-icon">🥪</div>饮食</div>
     <div class="nav-item" data-view="week"><div class="nav-icon">☁️</div>复盘</div>
@@ -568,16 +574,6 @@
         <div class="quote-en" id="quoteEn"></div>
         <div class="quote-author" id="quoteAuthor">— 佚名</div>
       </div>
-
-      <!-- 今日概览：妈妈 / 宝宝 拆分 -->
-      <div class="summary-card">
-        <h3>👩 妈妈 · 今日概览</h3>
-        <div class="summary-row" id="summaryMom"></div>
-      </div>
-      <div class="summary-card">
-        <h3>👦 宝宝 · 今日概览</h3>
-        <div class="summary-row" id="summaryBaby"></div>
-      </div>
     </div>
 
     <!-- TOPIC VIEW -->
@@ -602,7 +598,7 @@
 
     <!-- MOM VIEW -->
     <div class="view" id="view-mom">
-      <div class="section-title">👩 妈妈打卡 <span class="badge-small" id="momBadge">0/0</span></div>
+      <div class="section-title">🎀 摇一摇打卡 <span class="badge-small" id="momBadge">0/0</span></div>
       <div class="categories" id="momCategories"></div>
     </div>
 
@@ -1351,9 +1347,9 @@ function renderMeal() {
 
 /* ============ 导航 ============ */
 const VIEW_TITLES = {
-  home:{t:"去拥抱更大的世界 🏠", s:"朝夕相伴，日日生长"},
-  mom:{t:"👩 妈妈打卡", s:"爱自己，才能更好地爱家人"},
-  baby:{t:"👦 宝宝启蒙打卡", s:"慢慢来，比较快"},
+  home:{t:"去拥抱更大的世界 🏠", s:""},
+  mom:{t:"🎀 摇一摇打卡", s:"爱自己，才能更好地爱家人"},
+  baby:{t:"💛 小哎呦启蒙打卡", s:"慢慢来，比较快"},
   topic:{t:"💬 每日话题", s:"餐桌上的亲子时光"},
   meal:{t:"🍽️ 健康饮食", s:"好好吃饭，是最实在的爱"},
   week:{t:"📊 周度复盘", s:"看见坚持的力量"}
