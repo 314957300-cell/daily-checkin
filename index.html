@@ -3,38 +3,38 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#6f93b0" />
+<meta name="theme-color" content="#7FA8D6" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="共长台" />
 <meta name="mobile-web-app-capable" content="yes" />
 <link rel="apple-touch-icon" href="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%20flat%20app%20icon%2C%20calm%20blue%20ocean%20with%20a%20small%20white%20sailboat%2C%20soft%20pastel%20blue%20sky%2C%20rounded%20square%20app%20icon%20style%2C%20clean%20simple%2C%20soft%20blue%20color%20palette&image_size=square_hd" />
 <link rel="icon" href="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%20flat%20app%20icon%2C%20calm%20blue%20ocean%20with%20a%20small%20white%20sailboat%2C%20soft%20pastel%20blue%20sky%2C%20rounded%20square%20app%20icon%20style%2C%20clean%20simple%2C%20soft%20blue%20color%20palette&image_size=square_hd" />
-<link rel="manifest" href='data:application/manifest+json,{"name":"%E5%85%B1%E9%95%BF%E5%8F%B0","short_name":"%E5%85%B1%E9%95%BF%E5%8F%B0","start_url":".","display":"standalone","background_color":"%23e4ebf1","theme_color":"%236f93b0","icons":[{"src":"https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%2520flat%2520app%2520icon%252C%2520calm%2520blue%2520ocean%2520with%2520a%2520small%2520white%2520sailboat%252C%2520soft%2520pastel%2520blue%2520sky%252C%2520rounded%2520square%2520app%2520icon%2520style%252C%2520clean%2520simple%252C%2520soft%2520blue%2520color%2520palette&image_size=square_hd","sizes":"512x512","type":"image/png","purpose":"any"}]}' />
+<link rel="manifest" href='data:application/manifest+json,{"name":"%E5%85%B1%E9%95%BF%E5%8F%B0","short_name":"%E5%85%B1%E9%95%BF%E5%8F%B0","start_url":".","display":"standalone","background_color":"%23FFF7D6","theme_color":"%237FA8D6","icons":[{"src":"https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimal%2520flat%2520app%2520icon%252C%2520calm%2520blue%2520ocean%2520with%2520a%2520small%2520white%2520sailboat%252C%2520soft%2520pastel%2520blue%2520sky%252C%2520rounded%2520square%2520app%2520icon%2520style%252C%2520clean%2520simple%252C%2520soft%2520blue%2520color%2520palette&image_size=square_hd","sizes":"512x512","type":"image/png","purpose":"any"}]}' />
 <title>共长台 · 打卡工作台</title>
 <style>
   :root {
-    --bg: #e4ebf1;
-    --bg-soft: #eef2f6;
+    --bg: #FFF7D6;
+    --bg-soft: #FFF7D6;
     --card: #ffffff;
-    --primary: #6f93b0;
-    --primary-light: #b9cfe0;
-    --primary-dark: #4d7391;
-    --accent: #8fc1a8;
-    --accent-dark: #5fa07f;
-    --blue: #7aa3c9;
-    --purple: #a8b4cc;
-    --yellow: #e8c98a;
-    --pink: #dca89e;
-    --text: #4a5560;
-    --text-light: #8b95a0;
-    --border: #e2e8ee;
-    --shadow: 0 6px 24px rgba(111, 147, 176, 0.12);
-    --shadow-hover: 0 10px 32px rgba(111, 147, 176, 0.20);
-    --cream: #f5e6c8;
-    --sky: #cddce8;
-    --rose: #ecd5cf;
-    --mist: #d2e0ea;
+    --primary: #7FA8D6;
+    --primary-light: #A8C6E7;
+    --primary-dark: #46618f;
+    --accent: #7FA8D6;
+    --accent-dark: #5b82c9;
+    --blue: #7FA8D6;
+    --purple: #A8C6E7;
+    --yellow: #FFE08A;
+    --pink: #7FA8D6;
+    --text: #46587a;
+    --text-light: #8795ad;
+    --border: #f0e9d2;
+    --shadow: 0 6px 24px rgba(127, 168, 214, 0.15);
+    --shadow-hover: 0 10px 32px rgba(127, 168, 214, 0.25);
+    --cream: #FFF2B2;
+    --sky: #A8C6E7;
+    --rose: #FFE08A;
+    --mist: #FFF7D6;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
@@ -58,7 +58,7 @@
   /* ============ COVER ============ */
   .cover {
     position: fixed; inset: 0;
-    background: linear-gradient(160deg, #eaf0f5 0%, #dbe5ee 40%, #cdd9e4 100%);
+    background: linear-gradient(160deg, #FFF7D6 0%, #FFF2B2 45%, #A8C6E7 100%);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     z-index: 100;
     transition: opacity 0.6s ease, transform 0.6s ease;
@@ -119,16 +119,16 @@
     max-width: 320px;
   }
   .cover-btn {
-    background: linear-gradient(135deg, #6f93b0, #4d7391);
+    background: linear-gradient(135deg, #7FA8D6, #5b82c9);
     color: #fff;
     font-size: 18px;
     font-weight: 600;
     padding: 16px 56px;
     border-radius: 999px;
-    box-shadow: 0 8px 24px rgba(111, 147, 176, 0.4);
+    box-shadow: 0 8px 24px rgba(127, 168, 214, 0.45);
     transition: transform 0.2s, box-shadow 0.2s;
   }
-  .cover-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(77, 115, 145, 0.5); }
+  .cover-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(91, 130, 201, 0.5); }
   .cover-btn:active { transform: translateY(0); }
 
   /* ============ APP LAYOUT ============ */
@@ -163,14 +163,14 @@
     cursor: pointer;
   }
   .nav-item:hover { background: rgba(255,255,255,0.6); color: var(--primary-dark); }
-  .nav-item.active { background: var(--primary); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(111,147,176,0.35); }
+  .nav-item.active { background: var(--primary); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(127,168,214,0.4); }
   .nav-icon { font-size: 22px; }
 
   .main { flex: 1; padding: 24px 28px; overflow-y: auto; max-width: 100%; }
 
   /* ============ TOP BAR ============ */
   .topbar {
-    background: linear-gradient(135deg, #fff 0%, #eef2f6 100%);
+    background: linear-gradient(135deg, #fff 0%, #FFF7D6 100%);
     border-radius: 20px;
     padding: 20px 24px;
     box-shadow: var(--shadow);
@@ -210,8 +210,10 @@
   .home-grid .stat-card:nth-child(3) { background: var(--rose); }
   .home-grid .stat-card:nth-child(4) { background: var(--mist); }
   .stat-num { font-size: 30px; font-weight: 800; color: var(--primary-dark); }
-  .stat-num.green { color: #3d7a5e; }
-  .stat-num.blue { color: #4a7ba0; }
+  .stat-num.green { color: #5b82c9; }
+  .stat-num.blue { color: #46618f; }
+  .home-grid .stat-card:nth-child(2) .stat-num,
+  .home-grid .stat-card:nth-child(2) .stat-label { color: #fff; }
   .stat-label { font-size: 13px; color: var(--text); margin-top: 4px; opacity: 0.85; }
 
   .quote-card {
@@ -251,7 +253,7 @@
 
   /* topic card */
   .topic-card {
-    background: linear-gradient(135deg, #eef2f6, #e0e9f0);
+    background: linear-gradient(135deg, #FFF7D6, #FFF2B2);
     border-radius: 18px; padding: 28px;
     box-shadow: var(--shadow);
   }
@@ -278,8 +280,8 @@
   .meal-item { background: var(--bg-soft); border-radius: 10px; padding: 10px 12px; }
   .meal-item-label { font-size: 11px; color: var(--text-light); font-weight: 600; }
   .meal-item-val { font-size: 13px; color: var(--text); margin-top: 2px; }
-  .meal-cook { font-size: 13px; color: var(--accent-dark); background: #f0faf4; padding: 8px 12px; border-radius: 8px; }
-  .meal-prep { font-size: 13px; color: var(--primary-dark); background: #fff3ec; padding: 8px 12px; border-radius: 8px; margin-top: 8px; }
+  .meal-cook { font-size: 13px; color: var(--accent-dark); background: #FFF7D6; padding: 8px 12px; border-radius: 8px; }
+  .meal-prep { font-size: 13px; color: var(--primary-dark); background: #FFF2B2; padding: 8px 12px; border-radius: 8px; margin-top: 8px; }
   .meal-weekend-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
   .meal-meal-row { display: flex; gap: 8px; align-items: baseline; }
   .meal-meal-label { font-weight: 600; color: var(--blue); min-width: 50px; font-size: 14px; }
@@ -364,11 +366,11 @@
   .task-text { font-size: 14px; flex: 1; }
   .task-tag {
     font-size: 11px; padding: 2px 8px; border-radius: 8px;
-    background: var(--primary-light); color: var(--primary-dark); font-weight: 600;
+    background: var(--primary-light); color: #fff; font-weight: 600;
     flex-shrink: 0;
   }
-  .task-tag.green { background: #d8f0e2; color: var(--accent-dark); }
-  .task-tag.blue { background: #dae8f7; color: #4a7fb0; }
+  .task-tag.green { background: #FFF2B2; color: var(--accent-dark); }
+  .task-tag.blue { background: #7FA8D6; color: #fff; }
   .task-tag.gray { background: #eee; color: #888; }
 
   /* suggestion panel */
@@ -381,7 +383,7 @@
     font-size: 13px;
     line-height: 1.7;
   }
-  .suggestion.baby { border-color: #c5ddf2; }
+  .suggestion.baby { border-color: #A8C6E7; }
   .suggestion-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
   .suggestion.baby .suggestion-title { color: var(--blue); }
   .suggestion ul { list-style: none; }
@@ -442,7 +444,7 @@
   .toast {
     position: fixed; top: 24px; left: 50%;
     transform: translateX(-50%) translateY(-80px);
-    background: rgba(90, 70, 54, 0.92); color: #fff;
+    background: rgba(74, 111, 165, 0.92); color: #fff;
     padding: 12px 24px; border-radius: 12px; font-size: 14px;
     transition: transform 0.4s ease; z-index: 200; pointer-events: none;
   }
@@ -859,7 +861,7 @@ function mobiStatus() {
 /* ============ 数据定义 ============ */
 const MOM_DATA = [
   {
-    name:"减重健身", icon:"💪", color:"#6f93b0",
+    name:"减重健身", icon:"💪", color:"#7FA8D6",
     tasks:[
       {id:"m1", text:"居家运动跟练 30分钟", tag:"跟练"},
       {id:"m2", text:"饮水 2L", tag:"习惯"}
@@ -874,7 +876,7 @@ const MOM_DATA = [
     }
   },
   {
-    name:"护肤", icon:"🧴", color:"#b492c9",
+    name:"护肤", icon:"🧴", color:"#A8C6E7",
     tasks:[
       {id:"m3", text:"晨间护肤（洁面+水+精华+乳+防晒）", tag:"早"},
       {id:"m4", text:"晚间护肤（卸妆洁面+精华+面霜）", tag:"晚"}
@@ -893,7 +895,7 @@ const MOM_DATA = [
     }
   },
   {
-    name:"英语学习", icon:"📚", color:"#7ba7d6",
+    name:"英语学习", icon:"📚", color:"#FFE08A",
     tasks:[
       {id:"m5", text:"多邻国打卡 1 关", tag:"英语"},
       {id:"m5b", text:"Wow English 自学 1 集", tag:"英语"}
@@ -908,13 +910,13 @@ const MOM_DATA = [
     }
   },
   {
-    name:"读书", icon:"📖", color:"#7fc4a0",
+    name:"读书", icon:"📖", color:"#7FA8D6",
     tasks:[
       {id:"m6", text:"阅读 30 分钟", tag:"输入"}
     ]
   },
   {
-    name:"小红书运营", icon:"📕", color:"#f0c75e",
+    name:"小红书运营", icon:"📕", color:"#A8C6E7",
     tasks:[
       {id:"m7", text:"选题构思 / 素材收集", tag:"计划"},
       {id:"m8", text:"内容创作或发布 1 条", tag:"执行"},
@@ -927,7 +929,7 @@ const MOM_DATA = [
     }
   },
   {
-    name:"抖音运营", icon:"🎵", color:"#d6956b",
+    name:"抖音运营", icon:"🎵", color:"#FFE08A",
     tasks:[
       {id:"m10", text:"选题 / 脚本构思", tag:"计划"},
       {id:"m11", text:"拍摄或剪辑 1 条", tag:"执行"},
@@ -943,7 +945,7 @@ const MOM_DATA = [
 
 const BABY_DATA = [
   {
-    name:"英语启蒙", icon:"🔤", color:"#7ba7d6",
+    name:"英语启蒙", icon:"🔤", color:"#7FA8D6",
     tasks:[
       {id:"b1", text:"上学路上听力输入 10-15min", tag:"早"},
       {id:"b2", text:"叽里呱啦 Y1 学习", tag:"APP"},
@@ -962,14 +964,14 @@ const BABY_DATA = [
     }
   },
   {
-    name:"识字阅读", icon:"📖", color:"#7fc4a0",
+    name:"识字阅读", icon:"📖", color:"#A8C6E7",
     tasks:[
       {id:"b5", text:"识字复习 / 新字 5-8 个", tag:"识字"},
       {id:"b6", text:"分级读物共读（小羊上山/阅读树）", tag:"阅读"}
     ]
   },
   {
-    name:"数学思维", icon:"🔢", color:"#6f93b0",
+    name:"数学思维", icon:"🔢", color:"#FFE08A",
     tasks:[
       {id:"b7", text:"摩比爱数学（探索篇）", tag:mobiStatus().tag},
       {id:"b8", text:"数感训练游戏", tag:"游戏"},
@@ -985,7 +987,7 @@ const BABY_DATA = [
     }
   },
   {
-    name:"拼音", icon:"🔠", color:"#b492c9",
+    name:"拼音", icon:"🔠", color:"#7FA8D6",
     tasks:[
       {id:"b10", text:"声韵母复习", tag:"复习"},
       {id:"b11", text:"拼读练习游戏", tag:"游戏"}
@@ -1000,27 +1002,27 @@ const BABY_DATA = [
     }
   },
   {
-    name:"科普思维", icon:"🔬", color:"#4fa87a",
+    name:"科普思维", icon:"🔬", color:"#A8C6E7",
     tasks:[
       {id:"b12", text:"科普听读（音频/绘本）", tag:"输入"},
       {id:"b13", text:"思维 / 逻辑小游戏", tag:"游戏"}
     ]
   },
   {
-    name:"手风琴", icon:"🎹", color:"#d6956b",
+    name:"手风琴", icon:"🎹", color:"#FFE08A",
     tasks:[
       {id:"b14", text:"练琴 20-30 分钟", tag:"乐器"}
     ]
   },
   {
-    name:"户外护眼", icon:"🌳", color:"#7fc4a0",
+    name:"户外护眼", icon:"🌳", color:"#7FA8D6",
     tasks:[
       {id:"b15", text: isWeekend() ? "家庭户外活动 ≥ 2 小时" : "幼儿园户外活动 ≥ 2 小时（园里保证）", tag:"护眼"},
       {id:"b16", text:"远眺 / 眼保健操", tag:"护眼"}
     ]
   },
   {
-    name:"作息", icon:"😴", color:"#f0c75e",
+    name:"作息", icon:"😴", color:"#A8C6E7",
     tasks:[
       {id:"b17", text:"21:00 前上床睡觉", tag:"作息"}
     ]
@@ -1404,7 +1406,7 @@ function renderWeekly() {
   const endDay = days[6].slice(5);
   document.getElementById('weekRange').textContent = `${startDay} ~ ${endDay}`;
 
-  const colors = ["#6f93b0","#a8b4cc","#7aa3c9","#8fc1a8","#e8c98a","#9fb6c4","#5fa07f","#dca89e"];
+  const colors = ["#7FA8D6","#A8C6E7","#FFE08A","#7FA8D6","#A8C6E7","#FFE08A","#7FA8D6","#A8C6E7"];
   document.getElementById('weekBars').innerHTML = Object.keys(catDone).map((name,i) => {
     const pct = catTotal[name]?Math.round(catDone[name]/catTotal[name]*100):0;
     return `
