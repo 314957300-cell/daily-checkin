@@ -199,7 +199,10 @@
   .view.active { display: block; }
   .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
   .stat-card {
-    background: var(--card);
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,220,233,0.5));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.9);
     border-radius: 20px;
     padding: 20px 18px;
     box-shadow: var(--shadow);
@@ -207,15 +210,13 @@
     transition: transform 0.2s;
   }
   .stat-card:hover { transform: translateY(-2px); }
-  .home-grid .stat-card:nth-child(1) { background: var(--cream); }
-  .home-grid .stat-card:nth-child(2) { background: var(--sky); }
-  .home-grid .stat-card:nth-child(3) { background: var(--rose); }
-  .home-grid .stat-card:nth-child(4) { background: var(--mist); }
+  .home-grid .stat-card:nth-child(1) { background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,240,245,0.65)); }
+  .home-grid .stat-card:nth-child(2) { background: linear-gradient(135deg, rgba(255,255,255,0.78), rgba(246,191,218,0.5)); }
+  .home-grid .stat-card:nth-child(3) { background: linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,184,209,0.45)); }
+  .home-grid .stat-card:nth-child(4) { background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,247,250,0.7)); }
   .stat-num { font-size: 30px; font-weight: 800; color: var(--primary-dark); }
   .stat-num.green { color: #D9669C; }
   .stat-num.blue { color: #A34D7A; }
-  .home-grid .stat-card:nth-child(2) .stat-num,
-  .home-grid .stat-card:nth-child(2) .stat-label { color: #fff; }
   .stat-label { font-size: 13px; color: var(--text); margin-top: 4px; opacity: 0.85; }
 
   .quote-card {
@@ -235,7 +236,11 @@
 
   /* weather card */
   .weather-card {
-    background: var(--card); border-radius: 18px; padding: 18px 22px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,220,233,0.5));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 18px; padding: 18px 22px;
     box-shadow: var(--shadow); margin-bottom: 20px;
     display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
   }
@@ -464,11 +469,34 @@
 
   @media (max-width: 768px) {
     .sidebar { width: 72px; padding: 14px 0; }
-    .nav-item { width: 58px; font-size: 11px; }
+    .nav-item { width: 58px; font-size: 11px; padding: 10px 2px; }
     .nav-icon { font-size: 18px; }
-    .main { padding: 16px; }
+    .sidebar-logo { font-size: 18px; margin-bottom: 10px; }
+    .main { padding: 12px; }
     .cover-illu { width: 220px; height: 170px; }
     .cover-greet { font-size: 26px; }
+
+    /* 首页单屏适配 */
+    .topbar { padding: 12px 14px; margin-bottom: 12px; border-radius: 16px; gap: 8px; }
+    .topbar-left h2 { font-size: 17px; }
+    .topbar-left p { font-size: 11px; }
+    .topbar-time { font-size: 17px; }
+    .topbar-weather { font-size: 12px; }
+    .rate-badge { padding: 4px 12px; font-size: 12px; }
+    .home-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+    .stat-card { padding: 12px 8px; border-radius: 16px; }
+    .stat-num { font-size: 22px; }
+    .stat-label { font-size: 11px; }
+    .weather-card { padding: 12px 14px; margin-bottom: 12px; gap: 10px; border-radius: 16px; flex-direction: column; align-items: stretch; }
+    .weather-icon { font-size: 32px; }
+    .weather-temp { font-size: 22px; }
+    .weather-right { border-left: none; padding-left: 0; min-width: 0; }
+    .cloth-text { font-size: 12px; line-height: 1.5; }
+    .quote-card { padding: 12px 16px; margin-bottom: 12px; font-size: 14px; border-radius: 16px; }
+    .quote-card::before { font-size: 28px; }
+    .quote-author { margin-top: 4px; }
+    .footer-actions { margin-top: 12px; }
+    .btn { padding: 8px 14px; font-size: 13px; }
   }
 </style>
 </head>
@@ -501,7 +529,7 @@
     <div class="topbar">
       <div class="topbar-left">
         <h2 id="viewTitle">去拥抱更大的世界 🏠</h2>
-        <p id="viewSubtitle">朝夕相伴，日日生长</p>
+        <p id="viewSubtitle"></p>
       </div>
       <div class="topbar-right">
         <div class="topbar-time" id="curTime">--:--:--</div>
@@ -580,7 +608,7 @@
 
     <!-- BABY VIEW -->
     <div class="view" id="view-baby">
-      <div class="section-title">👦 宝宝启蒙打卡 <span class="badge-small" id="babyBadge">0/0</span></div>
+      <div class="section-title">💛 小哎呦启蒙打卡 <span class="badge-small" id="babyBadge">0/0</span></div>
       <div class="categories" id="babyCategories"></div>
     </div>
 
@@ -1136,8 +1164,10 @@ function miniCatHTML(cats) {
   }).join('');
 }
 function renderSummary() {
-  document.getElementById('summaryMom').innerHTML = miniCatHTML(MOM_DATA);
-  document.getElementById('summaryBaby').innerHTML = miniCatHTML(BABY_DATA);
+  const m = document.getElementById('summaryMom');
+  const b = document.getElementById('summaryBaby');
+  if (m) m.innerHTML = miniCatHTML(MOM_DATA);
+  if (b) b.innerHTML = miniCatHTML(BABY_DATA);
 }
 
 /* ============ 天气 & 穿衣（Open-Meteo 真实数据） ============ */
