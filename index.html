@@ -445,6 +445,47 @@
   }
   .unfinished-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
 
+  /* 复盘：周期切换 + 分组 */
+  .review-tabs {
+    display: flex; gap: 10px; margin-bottom: 14px;
+  }
+  .review-tab {
+    padding: 8px 22px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    background: #fff; color: var(--text-light);
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+  }
+  .review-tab.active {
+    background: var(--primary); color: #fff; border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(232,131,175,0.4);
+  }
+  .review-range {
+    font-size: 13px; color: var(--text-light); margin-bottom: 20px; padding-left: 4px;
+  }
+  .review-group { margin-bottom: 28px; }
+  .review-group-title {
+    font-size: 18px; font-weight: 700; margin-bottom: 14px;
+    color: var(--primary-dark); display: flex; align-items: center; gap: 8px;
+  }
+  .review-group .week-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,220,233,0.5));
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+  .review-group .week-bars, .review-group .unfinished {
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,240,245,0.6));
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+  .review-overall {
+    background: linear-gradient(135deg, rgba(255,240,245,0.7), rgba(255,220,233,0.5));
+    border-radius: 20px; padding: 20px; margin-top: 8px;
+    border: 1px solid rgba(246,191,218,0.5);
+  }
+  .overall-info {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    font-size: 13px; color: var(--text-light); margin-bottom: 14px;
+  }
+
   /* ============ FOOTER ============ */
   .footer-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
   .btn {
@@ -610,23 +651,15 @@
       <div class="categories" id="babyCategories"></div>
     </div>
 
-    <!-- WEEK VIEW -->
+    <!-- REVIEW VIEW -->
     <div class="view" id="view-week">
-      <div class="section-title">📊 周度复盘 <span class="badge-small" id="weekRange"></span></div>
-      <div class="week-overview">
-        <div class="week-card"><div class="num" id="weekDone">0</div><div class="label">本周已打卡</div></div>
-        <div class="week-card"><div class="num" id="weekRate">0%</div><div class="label">本周完成率</div></div>
-        <div class="week-card"><div class="num" id="weekStreak">0</div><div class="label">连续打卡天数</div></div>
-        <div class="week-card"><div class="num" id="weekBest">0%</div><div class="label">最佳日完成率</div></div>
+      <div class="section-title">📊 复盘</div>
+      <div class="review-tabs">
+        <button class="review-tab active" data-period="week" onclick="switchReview('week')">周度复盘</button>
+        <button class="review-tab" data-period="month" onclick="switchReview('month')">月度复盘</button>
       </div>
-      <div class="week-bars">
-        <h3>📈 各分类本周完成率</h3>
-        <div id="weekBars"></div>
-      </div>
-      <div class="unfinished">
-        <h3>⏳ 本周常未完成项</h3>
-        <div class="unfinished-list" id="unfinishedList"></div>
-      </div>
+      <div class="review-range" id="reviewRange"></div>
+      <div id="reviewContent"></div>
     </div>
 
     <div class="footer-actions">
@@ -1354,7 +1387,7 @@ const VIEW_TITLES = {
   baby:{t:"💛 小哎呦启蒙打卡", s:"慢慢来，比较快"},
   topic:{t:"💬 每日话题", s:"餐桌上的亲子时光"},
   meal:{t:"🍽️ 健康饮食", s:"好好吃饭，是最实在的爱"},
-  week:{t:"📊 周度复盘", s:"看见坚持的力量"}
+  week:{t:"📊 复盘", s:"看见坚持的力量"}
 };
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -1372,7 +1405,9 @@ document.querySelectorAll('.nav-item').forEach(item => {
   });
 });
 
-/* ============ 周度复盘 ============ */
+/* ============ 复盘（周度 / 月度） ============ */
+let currentReviewPeriod = 'week';
+
 function getLastNDays(n) {
   const days = [];
   for (let i=n-1; i>=0; i--) {
@@ -1382,32 +1417,54 @@ function getLastNDays(n) {
   }
   return days;
 }
-function renderWeekly() {
-  const days = getLastNDays(7);
-  const allCats = [...MOM_DATA, ...BABY_DATA];
-  const allTasks = allCats.flatMap(c=>c.tasks);
+
+// 获取某一天的打卡数据
+function getDayState(dayKey) {
+  if (dayKey === getTodayKey()) return state;
+  try { return JSON.parse(localStorage.getItem(`checkin_${dayKey}`)) || {}; } catch(e){ return {}; }
+}
+
+// 扫描 localStorage 找到最早的打卡日期
+function getStartDate() {
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('checkin_'));
+  if (!keys.length) return getTodayKey();
+  const dates = keys.map(k => k.replace('checkin_','')).sort();
+  return dates[0];
+}
+
+// 获取从起始日到今天的所有日期
+function getAllDaysSinceStart() {
+  const start = getStartDate();
+  const days = [];
+  const today = new Date();
+  const s = new Date(start);
+  for (let d = new Date(s); d <= today; d.setDate(d.getDate()+1)) {
+    days.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  return days;
+}
+
+// 计算一组分类在指定日期范围内的统计
+function calcReview(days, cats) {
+  const allTasks = cats.flatMap(c => c.tasks);
   let totalDone = 0, totalAll = 0, bestRate = 0, streak = 0;
   const catDone = {}, catTotal = {};
   const taskMissCount = {};
 
-  allCats.forEach(c => { catDone[c.name]=0; catTotal[c.name]=0; });
+  cats.forEach(c => { catDone[c.name] = 0; catTotal[c.name] = 0; });
 
-  days.forEach((dayKey, idx) => {
-    let ds = {};
-    if (dayKey === getTodayKey()) ds = state;
-    else { try { ds = JSON.parse(localStorage.getItem(`checkin_${dayKey}`)) || {}; } catch(e){} }
-
+  days.forEach(dayKey => {
+    const ds = getDayState(dayKey);
     let dayDone = 0, dayTotal = 0;
     allTasks.forEach(t => {
       dayTotal++;
       if (ds[t.id]) { dayDone++; totalDone++; }
-      else { taskMissCount[t.text] = (taskMissCount[t.text]||0)+1; }
+      else { taskMissCount[t.text] = (taskMissCount[t.text] || 0) + 1; }
     });
     totalAll += dayTotal;
-    const rate = dayTotal?Math.round(dayDone/dayTotal*100):0;
+    const rate = dayTotal ? Math.round(dayDone / dayTotal * 100) : 0;
     if (rate > bestRate) bestRate = rate;
-
-    allCats.forEach(c => {
+    cats.forEach(c => {
       c.tasks.forEach(t => {
         catTotal[c.name]++;
         if (ds[t.id]) catDone[c.name]++;
@@ -1415,51 +1472,108 @@ function renderWeekly() {
     });
   });
 
-  // 连续打卡天数（从今天往前数完成率>0的天数）
-  for (let i=days.length-1; i>=0; i--) {
-    const dayKey = days[i];
-    let ds = {};
-    if (dayKey === getTodayKey()) ds = state;
-    else { try { ds = JSON.parse(localStorage.getItem(`checkin_${dayKey}`)) || {}; } catch(e){} }
-    const hasDone = allTasks.some(t=>ds[t.id]);
-    if (hasDone) streak++;
+  // 连续打卡天数
+  for (let i = days.length - 1; i >= 0; i--) {
+    const ds = getDayState(days[i]);
+    if (allTasks.some(t => ds[t.id])) streak++;
     else break;
   }
 
-  const weekRate = totalAll?Math.round(totalDone/totalAll*100):0;
-  document.getElementById('weekDone').textContent = totalDone;
-  document.getElementById('weekRate').textContent = weekRate+'%';
-  document.getElementById('weekStreak').textContent = streak;
-  document.getElementById('weekBest').textContent = bestRate+'%';
+  const rate = totalAll ? Math.round(totalDone / totalAll * 100) : 0;
+  return { totalDone, totalAll, rate, bestRate, streak, catDone, catTotal, taskMissCount };
+}
 
-  const startDay = days[0].slice(5);
-  const endDay = days[6].slice(5);
-  document.getElementById('weekRange').textContent = `${startDay} ~ ${endDay}`;
-
-  const colors = ["#E883AF","#F6BFDA","#FFB8D1","#E883AF","#F6BFDA","#FFB8D1","#E883AF","#F6BFDA"];
-  document.getElementById('weekBars').innerHTML = Object.keys(catDone).map((name,i) => {
-    const pct = catTotal[name]?Math.round(catDone[name]/catTotal[name]*100):0;
+// 渲染单个分组（摇一摇 / 小哎呦）的复盘块
+function renderGroupReview(icon, who, days, cats, colors) {
+  const r = calcReview(days, cats);
+  const bars = Object.keys(r.catDone).map((name, i) => {
+    const pct = r.catTotal[name] ? Math.round(r.catDone[name] / r.catTotal[name] * 100) : 0;
     return `
       <div class="bar-row">
         <div class="bar-label">${name}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[i%colors.length]}"></div></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[i % colors.length]}"></div></div>
         <div class="bar-pct">${pct}%</div>
       </div>
     `;
   }).join('');
 
-  // 常未完成项
-  const misses = Object.entries(taskMissCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  document.getElementById('unfinishedList').innerHTML = misses.length
+  const misses = Object.entries(r.taskMissCount).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const missHtml = misses.length
     ? misses.map(([text, cnt]) => `
         <div class="unfinished-item">
           <div class="dot"></div>
           <div>${text}</div>
-          <div style="margin-left:auto;color:var(--text-light);font-size:12px">本周未完成 ${cnt} 次</div>
+          <div style="margin-left:auto;color:var(--text-light);font-size:12px">未完成 ${cnt} 次</div>
         </div>
       `).join('')
-    : `<div class="unfinished-item" style="justify-content:center;color:var(--text-light)">本周全部完成，太棒了！🎉</div>`;
+    : `<div class="unfinished-item" style="justify-content:center;color:var(--text-light)">全部完成，太棒了！🎉</div>`;
+
+  return `
+    <div class="review-group">
+      <h3 class="review-group-title">${icon} ${who}</h3>
+      <div class="week-overview">
+        <div class="week-card"><div class="num">${r.totalDone}</div><div class="label">已打卡</div></div>
+        <div class="week-card"><div class="num">${r.rate}%</div><div class="label">完成率</div></div>
+        <div class="week-card"><div class="num">${r.streak}</div><div class="label">连续天数</div></div>
+        <div class="week-card"><div class="num">${r.bestRate}%</div><div class="label">最佳日</div></div>
+      </div>
+      <div class="week-bars"><h3>📈 各分类完成率</h3><div>${bars}</div></div>
+      <div class="unfinished"><h3>⏳ 常未完成项</h3><div class="unfinished-list">${missHtml}</div></div>
+    </div>
+  `;
 }
+
+function switchReview(period) {
+  currentReviewPeriod = period;
+  document.querySelectorAll('.review-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.period === period);
+  });
+  renderReview();
+}
+
+function renderReview() {
+  const period = currentReviewPeriod;
+  const n = period === 'week' ? 7 : 30;
+  const days = getLastNDays(n);
+  const label = period === 'week' ? '周' : '月';
+
+  const startDay = days[0].slice(5);
+  const endDay = days[days.length - 1].slice(5);
+  document.getElementById('reviewRange').textContent = `${days[0].slice(0,4)}年 ${startDay} ~ ${endDay}（近${n}天）`;
+
+  const momColors = ["#E883AF", "#F6BFDA", "#FFB8D1", "#E883AF", "#F6BFDA", "#FFB8D1"];
+  const babyColors = ["#FFB8D1", "#F6BFDA", "#E883AF", "#FFB8D1", "#F6BFDA", "#E883AF"];
+
+  // 摇一摇 + 小哎呦 分组复盘
+  const momHtml = renderGroupReview('🎀', '摇一摇', days, MOM_DATA, momColors);
+  const babyHtml = renderGroupReview('💛', '小哎呦', days, BABY_DATA, babyColors);
+
+  // 整体完成情况（起始日 ~ 今日）
+  const allDays = getAllDaysSinceStart();
+  const allCats = [...MOM_DATA, ...BABY_DATA];
+  const overall = calcReview(allDays, allCats);
+  const startDate = getStartDate();
+  const overallHtml = `
+    <div class="review-group review-overall">
+      <h3 class="review-group-title">📈 完整完成情况</h3>
+      <div class="overall-info">
+        <span>起始日：${startDate}</span>
+        <span>累计天数：${allDays.length} 天</span>
+      </div>
+      <div class="week-overview">
+        <div class="week-card"><div class="num">${overall.totalDone}</div><div class="label">累计已打卡</div></div>
+        <div class="week-card"><div class="num">${overall.rate}%</div><div class="label">总完成率</div></div>
+        <div class="week-card"><div class="num">${overall.streak}</div><div class="label">连续打卡</div></div>
+        <div class="week-card"><div class="num">${overall.bestRate}%</div><div class="label">最佳日</div></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('reviewContent').innerHTML = momHtml + babyHtml + overallHtml;
+}
+
+// 兼容旧调用
+function renderWeekly() { renderReview(); }
 
 /* ============ 工具 ============ */
 function showToast(msg){
