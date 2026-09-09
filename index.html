@@ -542,6 +542,39 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* 天气切换城市 modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none; align-items: center; justify-content: center;
+    z-index: 300;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 20px; padding: 28px 28px 20px;
+    width: 320px; max-width: 88vw;
+    box-shadow: 0 20px 50px rgba(217,102,156,0.25);
+    text-align: center;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+  .modal-desc { font-size: 12px; color: var(--text-light); margin-bottom: 14px; }
+  .modal-input {
+    width: 100%; box-sizing: border-box;
+    padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 12px; font-size: 15px; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .modal-input:focus { border-color: var(--primary); }
+  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-btn {
+    flex: 1; padding: 10px 0; border-radius: 12px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .modal-btn-cancel { background: var(--bg-soft); color: var(--text); }
+  .modal-btn-cancel:hover { background: #f0e6eb; }
+  .modal-btn-ok { background: var(--primary); color: #fff; }
+  .modal-btn-ok:hover { background: var(--primary-dark); }
+
   .back-cover {
     position: fixed; top: 16px; right: 16px;
     width: 42px; height: 42px; border-radius: 50%;
@@ -724,6 +757,18 @@
 </div>
 
 <div class="back-cover" onclick="showCover()" title="返回封面"><img src="./back-cover.png" alt="返回" /></div>
+<!-- 天气切换城市 modal -->
+<div class="modal-overlay" id="cityModal">
+  <div class="modal-box">
+    <div class="modal-title">📍 切换城市</div>
+    <div class="modal-desc">输入城市名即可切换天气（如：杭州、上海、北京）</div>
+    <input class="modal-input" id="cityInput" type="text" placeholder="请输入城市名称" />
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeCityModal()">取消</button>
+      <button class="modal-btn modal-btn-ok" onclick="confirmCityModal()">确定</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1497,13 +1542,33 @@ async function renderWeather() {
 }
 
 function changeCity() {
-  const city = prompt("请输入城市名称（如：杭州、上海、北京）：", WEATHER_CITY || "");
-  if (city === null) return;
-  WEATHER_CITY = city.trim();
-  if (WEATHER_CITY) localStorage.setItem('weather_city', WEATHER_CITY);
-  else localStorage.removeItem('weather_city');
+  document.getElementById('cityInput').value = WEATHER_CITY || '';
+  document.getElementById('cityModal').classList.add('show');
+  setTimeout(() => document.getElementById('cityInput').focus(), 50);
+}
+function closeCityModal() {
+  document.getElementById('cityModal').classList.remove('show');
+}
+function confirmCityModal() {
+  const city = document.getElementById('cityInput').value.trim();
+  closeCityModal();
+  if (!city) return;
+  WEATHER_CITY = city;
+  localStorage.setItem('weather_city', WEATHER_CITY);
   renderWeather();
 }
+// modal 交互：Enter 确认、Esc 关闭、点遮罩关闭
+document.addEventListener('keydown', e => {
+  const modal = document.getElementById('cityModal');
+  if (!modal || !modal.classList.contains('show')) return;
+  if (e.key === 'Enter') confirmCityModal();
+  else if (e.key === 'Escape') closeCityModal();
+});
+document.addEventListener('click', e => {
+  if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+    closeCityModal();
+  }
+});
 
 /* ============ 每日话题 ============ */
 function renderTopic() {
@@ -1585,7 +1650,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     document.querySelectorAll('.view').forEach(view=>view.classList.remove('active'));
     document.getElementById('view-'+v).classList.add('active');
     document.getElementById('viewTitle').textContent = VIEW_TITLES[v].t;
-    document.getElementById('viewSubtitle').textContent = '';
+    document.getElementById('viewSubtitle').style.display = 'none';
     // 首页显示 home-topbar（时间/日期/完成率+小马），其他板块显示 topbarTitle
     document.getElementById('homeTopbar').style.display = v === 'home' ? 'flex' : 'none';
     document.getElementById('topbarTitle').style.display = v === 'home' ? 'none' : 'block';
