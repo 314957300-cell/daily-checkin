@@ -1285,7 +1285,7 @@ const BABY_DATA = [
         "今日思维游戏：" + pick(SCIENCE_GAMES,1,8)[0]
       ],
       note:"科普主粮用「科学队长」——北大/清华等科学家主讲的体系化音频（24档×52期，覆盖生命/物质/宇宙地球/工程技术），3-9岁。点下方按钮在喜马拉雅搜「科学队长」，按专辑顺序听；同一集可连听2天再换下一集。",
-      app:{name:"喜马拉雅", url:"https://apps.apple.com/cn/search?term=%E5%96%9C%E9%A9%AC%E6%8B%89%E9%9B%85%20%E7%A7%91%E5%AD%A6%E9%98%9F%E9%95%BF", icon:"🎧", desc:"听科学队长"}
+      app:{name:"喜马拉雅", url:"https://apps.apple.com/cn/app/id876336838", icon:"🎧", desc:"听科学队长"}
     }
   },
   {
@@ -1354,7 +1354,7 @@ function renderCategories(container, data, isBaby) {
           <ul>${s.topics.map(t=>`<li>${t}</li>`).join('')}</ul>
           ${tipsHtml}
           ${s.note?`<div class="tip">${s.note}</div>`:''}
-          ${s.app?`<a href="${s.app.url}" class="app-link-btn" onclick="return openAppLink(event,'${s.app.name}')">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
+          ${s.app?`<a href="${s.app.url}" target="_blank" class="app-link-btn" onclick="return openAppLink(event,'${s.app.name}')">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
         </div>
       `;
     }
@@ -1830,20 +1830,23 @@ function renderReview() {
 // 兼容旧调用
 function renderWeekly() { renderReview(); }
 
-/* App 链接跳转：iOS 直接走 https（App Store/通用链接可唤起），安卓尝试应用市场 */
+/* App 链接跳转：iOS 用 itms-apps:// scheme 直接唤起 App Store，桌面走 https */
+const APP_STORE_IDS = {
+  "薄荷健康": 457856023,
+  "多邻国": 570060128,
+  "小宇宙": 1488894313,
+  "喜马拉雅": 876336838
+};
 function openAppLink(ev, name){
   const ua = navigator.userAgent;
-  const isAndroid = /Android/i.test(ua);
-  if (!isAndroid) return true; // iOS/桌面：默认 https 链接正常打开
-  // 安卓：尝试打开系统应用市场搜索，失败则回退到原链接
-  ev.preventDefault();
-  const fallback = ev.currentTarget.href;
-  let opened = false;
-  const onVis = () => { if (document.hidden) { opened = true; clearTimeout(t); } };
-  document.addEventListener('visibilitychange', onVis);
-  window.location.href = 'market://search?q=' + encodeURIComponent(name);
-  const t = setTimeout(() => { if (!opened) window.location.href = fallback; }, 1500);
-  return false;
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+  if (isIOS && APP_STORE_IDS[name]) {
+    ev.preventDefault();
+    // itms-apps:// 是 iOS 唤起 App Store App 的最可靠方式
+    window.location.href = 'itms-apps://itunes.apple.com/app/id' + APP_STORE_IDS[name];
+    return false;
+  }
+  return true; // 桌面/其他平台走默认 href
 }
 
 /* ============ 工具 ============ */
