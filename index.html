@@ -142,14 +142,12 @@
     border-right: none;
     position: relative;
   }
-  /* 白色蕾丝右边框：底部扇贝波浪 + 顶部小圆点爱心镂空（参考封面图蕾丝边） */
+  /* 白色蕾丝右边框（用参考素材 PNG） */
   .sidebar::after {
     content: "";
-    position: absolute; top: 0; right: -12px; bottom: 0;
-    width: 26px;
-    background: #ffffff;
-    /* 扇贝底边 + 顶部小圆点镂空 + 爱心镂空 */
-    clip-path: path('M0,0 L4,0 L4,3 C4,2 5,1 6,1 C7,1 8,2 8,3 L8,0 L12,0 L12,3 C12,2 13,1 13.5,1 C14,1 15,2 15,3 C15,2 16,1 17,1 C18,1 19,2 19,3 L19,0 L26,0 L26,11 C23,11 23,18 20,18 C17,18 17,11 13,11 C9,11 9,18 6,18 C3,18 3,11 0,11 Z');
+    position: absolute; top: 0; right: -14px; bottom: 0;
+    width: 40px;
+    background: url("./lace-trim.png") center/40px auto repeat-y;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
