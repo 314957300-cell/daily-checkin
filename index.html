@@ -142,12 +142,12 @@
     border-right: none;
     position: relative;
   }
-  /* 白色蕾丝右边框（用参考素材 PNG） */
+  /* 白色蕾丝右边框（竖版应用，参考素材旋转90°） */
   .sidebar::after {
     content: "";
-    position: absolute; top: 0; right: -14px; bottom: 0;
-    width: 40px;
-    background: url("./lace-trim.png") center/40px auto repeat-y;
+    position: absolute; top: 0; right: -10px; bottom: 0;
+    width: 24px;
+    background: url("./lace-trim.png") center/24px auto repeat-y;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
@@ -522,13 +522,14 @@
   .back-cover {
     position: fixed; top: 16px; right: 16px;
     width: 42px; height: 42px; border-radius: 50%;
-    background: #fff; box-shadow: var(--shadow);
+    background: transparent; box-shadow: var(--shadow);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; z-index: 95;
     transition: transform 0.2s;
     overflow: hidden;
+    padding: 0;
   }
-  .back-cover img { width: 26px; height: 26px; object-fit: contain; }
+  .back-cover img { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; }
   .back-cover:hover { transform: scale(1.1); }
 
   @media (max-width: 768px) {
