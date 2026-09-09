@@ -604,8 +604,8 @@
   <div class="main">
     <!-- TOP BAR -->
     <div class="topbar">
-      <div class="topbar-left">
-        <h2 id="viewTitle">去拥抱更大的世界 🏠</h2>
+      <div class="topbar-left" id="topbarTitle" style="display:none">
+        <h2 id="viewTitle"></h2>
         <p id="viewSubtitle"></p>
       </div>
       <div class="topbar-right">
@@ -617,6 +617,13 @@
 
     <!-- HOME VIEW -->
     <div class="view active" id="view-home">
+      <!-- 每日一言 置顶 -->
+      <div class="quote-card">
+        <span id="quoteText">慢慢来，比较快。</span>
+        <div class="quote-en" id="quoteEn"></div>
+        <div class="quote-author" id="quoteAuthor">— 佚名</div>
+      </div>
+
       <div class="home-grid">
         <div class="stat-card"><div class="stat-num" id="statDone">0</div><div class="stat-label">已打卡</div></div>
         <div class="stat-card"><div class="stat-num green" id="statTodo">0</div><div class="stat-label">待办事项</div></div>
@@ -637,13 +644,6 @@
           <div class="cloth-title">👕 今日穿衣建议 <span style="float:right"><button class="btn-mini" onclick="changeCity()">📍 切换城市</button> <button class="btn-mini" onclick="renderWeather()">🔄</button></span></div>
           <div class="cloth-text" id="clothText">--</div>
         </div>
-      </div>
-
-      <!-- 每日一言 中英双语 -->
-      <div class="quote-card">
-        <span id="quoteText">慢慢来，比较快。</span>
-        <div class="quote-en" id="quoteEn"></div>
-        <div class="quote-author" id="quoteAuthor">— 佚名</div>
       </div>
     </div>
 
@@ -1559,6 +1559,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
     document.getElementById('view-'+v).classList.add('active');
     document.getElementById('viewTitle').textContent = VIEW_TITLES[v].t;
     document.getElementById('viewSubtitle').textContent = VIEW_TITLES[v].s;
+    // 首页隐藏标题（用名言置顶），其他板块显示
+    document.getElementById('topbarTitle').style.display = v === 'home' ? 'none' : 'block';
     if (v==='week') renderReview();
     if (v==='topic') renderTopic();
     if (v==='meal') renderMeal();
