@@ -142,12 +142,18 @@
     border-right: none;
     position: relative;
   }
-  /* 白色蕾丝右边框（竖版应用，参考素材旋转90°） */
+  /* 白色蕾丝右边框（竖版，避开 sidebar logo，无缝拼接） */
   .sidebar::after {
     content: "";
-    position: absolute; top: 0; right: -10px; bottom: 0;
-    width: 24px;
-    background: url("./lace-trim.png") center/24px auto repeat-y;
+    position: absolute;
+    top: 90px; right: -12px; bottom: 0;
+    width: 26px;
+    /* 精确匹配图片周期：192×1200 原图 → 26px 宽，高度按比例缩放后是 162px 周期 */
+    background: url("./lace-trim.png") center/26px auto repeat-y;
+    background-position: center 0;
+    /* 让蕾丝在最后一段自动裁切，避免接缝突兀 */
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 6px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 6px), transparent 100%);
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
