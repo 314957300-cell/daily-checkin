@@ -132,14 +132,26 @@
   .app.show { display: flex; }
   .sidebar {
     width: 92px;
-    background: rgba(255,255,255,0.96);
+    background: linear-gradient(180deg, rgba(255,225,240,0.95) 0%, rgba(255,240,248,0.92) 100%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex; flex-direction: column; align-items: center;
     padding: 22px 0;
     gap: 8px;
     flex-shrink: 0;
-    border-right: 2px solid #F6BFDA;
+    border-right: none;
+    position: relative;
+  }
+  /* 白色蕾丝右边框：用 box-shadow 画圆点+波浪 */
+  .sidebar::after {
+    content: "";
+    position: absolute; top: 0; right: -3px; bottom: 0;
+    width: 6px;
+    background:
+      radial-gradient(circle at 3px 3px, #fff 1.5px, transparent 2px) 0 0 / 6px 6px repeat-y,
+      radial-gradient(circle at 0px 6px, #fff 1.5px, transparent 2px) 0 0 / 6px 12px repeat-y,
+      linear-gradient(180deg, #fff 0%, #fff 100%);
+    box-shadow: 2px 0 0 #fff, 4px 0 0 rgba(255,255,255,0.6);
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
