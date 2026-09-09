@@ -1354,7 +1354,7 @@ function renderCategories(container, data, isBaby) {
           <ul>${s.topics.map(t=>`<li>${t}</li>`).join('')}</ul>
           ${tipsHtml}
           ${s.note?`<div class="tip">${s.note}</div>`:''}
-          ${s.app?`<a href="${s.app.url}" target="_blank" class="app-link-btn" onclick="return openAppLink(event,'${s.app.name}')">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
+          ${s.app?`<a href="${s.app.url}" target="_blank" class="app-link-btn" data-app-name="${s.app.name}">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
         </div>
       `;
     }
@@ -1377,6 +1377,7 @@ function renderCategories(container, data, isBaby) {
   container.querySelectorAll('.task').forEach(el => {
     el.addEventListener('click', () => toggleTask(el.dataset.id));
   });
+  setupAppLinks(); // iOS 上把 app-link-btn 的 href 改成 itms-apps://
 }
 
 function toggleTask(id){ state[id]=!state[id]; saveState(state); refresh(); }
@@ -1830,23 +1831,25 @@ function renderReview() {
 // 兼容旧调用
 function renderWeekly() { renderReview(); }
 
-/* App 链接跳转：iOS 用 itms-apps:// scheme 直接唤起 App Store，桌面走 https */
+/* App 链接：iOS 上把 .app-link-btn 的 href 改成 itms-apps:// scheme（必须原生 <a> 点击，不能 JS 劫持） */
 const APP_STORE_IDS = {
   "薄荷健康": 457856023,
   "多邻国": 570060128,
   "小宇宙": 1488894313,
   "喜马拉雅": 876336838
 };
-function openAppLink(ev, name){
-  const ua = navigator.userAgent;
-  const isIOS = /iPad|iPhone|iPod/.test(ua);
-  if (isIOS && APP_STORE_IDS[name]) {
-    ev.preventDefault();
-    // itms-apps:// 是 iOS 唤起 App Store App 的最可靠方式
-    window.location.href = 'itms-apps://itunes.apple.com/app/id' + APP_STORE_IDS[name];
-    return false;
-  }
-  return true; // 桌面/其他平台走默认 href
+function setupAppLinks(){
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (!isIOS) return; // 桌面/安卓保留 https 链接
+  document.querySelectorAll('.app-link-btn').forEach(a => {
+    const name = a.getAttribute('data-app-name');
+    if (APP_STORE_IDS[name]) {
+      // 直接改 href —— 用户点击时走原生 <a> 导航，iOS 不拦截
+      a.setAttribute('href', 'itms-apps://itunes.apple.com/app/id' + APP_STORE_IDS[name]);
+      // iOS 上 target="_blank" 会在新标签打开但 itms-apps:// 仍能唤起 App Store
+      // 保持不变即可
+    }
+  });
 }
 
 /* ============ 工具 ============ */
