@@ -142,16 +142,13 @@
     border-right: none;
     position: relative;
   }
-  /* 白色蕾丝右边框：用 box-shadow 画圆点+波浪 */
+  /* 白色扇贝形蕾丝右边框（参考封面图白色圆圈蕾丝边） */
   .sidebar::after {
     content: "";
-    position: absolute; top: 0; right: -3px; bottom: 0;
-    width: 6px;
-    background:
-      radial-gradient(circle at 3px 3px, #fff 1.5px, transparent 2px) 0 0 / 6px 6px repeat-y,
-      radial-gradient(circle at 0px 6px, #fff 1.5px, transparent 2px) 0 0 / 6px 12px repeat-y,
-      linear-gradient(180deg, #fff 0%, #fff 100%);
-    box-shadow: 2px 0 0 #fff, 4px 0 0 rgba(255,255,255,0.6);
+    position: absolute; top: 0; right: -6px; bottom: 0;
+    width: 14px;
+    background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSI4IiB2aWV3Qm94PSIwIDAgMTQgOCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PHBhdGggZD0iTTAgMCBMOCAwIEMxMSAwIDExIDggOCA4IEwwIDggWiIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPgo=") repeat-y;
+    background-size: 14px 8px;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
