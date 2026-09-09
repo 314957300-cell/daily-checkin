@@ -17,11 +17,15 @@
     --bg: #FFF0F5;
     --bg-soft: #FFF0F5;
     --card: #ffffff;
+    /* 按钮/激活项用的粉色（原 sidebar 粉色） */
     --primary: #E883AF;
     --primary-light: #F6BFDA;
     --primary-dark: #A34D7A;
     --accent: #E883AF;
     --accent-dark: #D9669C;
+    /* 目录条背景：肉粉色（封面飞马图基调） */
+    --sidebar-bg-top: #FFDDE7;
+    --sidebar-bg-bot: #FFE8EF;
     --blue: #E883AF;
     --purple: #F6BFDA;
     --yellow: #FFB8D1;
@@ -132,23 +136,13 @@
   .app.show { display: flex; }
   .sidebar {
     width: 92px;
-    background: linear-gradient(180deg, rgba(255,225,240,0.95) 0%, rgba(255,240,248,0.92) 100%);
+    background: linear-gradient(180deg, var(--sidebar-bg-top) 0%, var(--sidebar-bg-bot) 100%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex; flex-direction: column; align-items: center;
     padding: 22px 0;
     gap: 8px;
     flex-shrink: 0;
-    border-right: none;
-    position: relative;
-  }
-  /* 目录条右侧朝外白色波浪（SVG 背景图，平铺） */
-  .sidebar::after {
-    content: "";
-    position: absolute; top: 0; right: -7px; bottom: 0;
-    width: 14px;
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' preserveAspectRatio='none'><rect x='0' y='0' width='14' height='7' fill='white'/><path d='M0,7 Q7,14 14,7 Z' fill='white'/></svg>") repeat-y;
-    background-size: 14px 14px;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
