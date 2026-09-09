@@ -54,10 +54,20 @@
   .cover {
     position: fixed; inset: 0;
     background: url("./cover.jpg") center/cover no-repeat;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: stretch;
     z-index: 100;
     transition: opacity 0.6s ease, transform 0.6s ease;
-    padding: 40px 24px;
+    padding: 48px 24px 36px;
+  }
+  /* 顶部区域：日期 + 问候 + slogan 顶格 */
+  .cover-top {
+    text-align: center;
+  }
+  /* 底部区域：每日一言 + 按钮 底格 */
+  .cover-bottom {
+    margin-top: auto;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
   }
   .cover.hide { opacity: 0; transform: scale(0.96); pointer-events: none; }
   .cover-logo {
@@ -155,9 +165,7 @@
 
   .main {
     flex: 1; padding: 24px 28px; overflow-y: auto; max-width: 100%;
-    background-color: #ffffff;
     background: url("./innerbg.jpg") center/cover no-repeat fixed;
-    background-size: 24px 24px;
   }
 
   /* ============ TOP BAR ============ */
@@ -548,11 +556,15 @@
 
 <!-- ============ COVER ============ -->
 <div class="cover" id="cover">
-  <div class="cover-date" id="coverDate"></div>
-  <div class="cover-greet">嗨，摇一摇</div>
-  <div class="cover-slogan">去拥抱更大的世界 ✨</div>
-  <div class="cover-quote" id="coverQuote">坚持很酷，今天也很棒。</div>
-  <button class="cover-btn" onclick="enterApp()">进入工作台 →</button>
+  <div class="cover-top">
+    <div class="cover-date" id="coverDate"></div>
+    <div class="cover-greet">嗨，摇一摇</div>
+    <div class="cover-slogan">去拥抱更大的世界 ✨</div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-quote" id="coverQuote">坚持很酷，今天也很棒。</div>
+    <button class="cover-btn" onclick="enterApp()">进入工作台 →</button>
+  </div>
 </div>
 
 <!-- ============ APP ============ -->
