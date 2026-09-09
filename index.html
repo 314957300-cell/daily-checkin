@@ -142,13 +142,14 @@
     border-right: none;
     position: relative;
   }
-  /* 白色蕾丝右边框：底部扇贝波浪 + 顶部小圆点 + 爱心镂空 */
+  /* 白色蕾丝右边框：底部扇贝波浪 + 顶部小圆点爱心镂空（参考封面图蕾丝边） */
   .sidebar::after {
     content: "";
-    position: absolute; top: 0; right: -18px; bottom: 0;
-    width: 40px;
-    background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDQwIDI0IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj4KICA8ZGVmcz4KICAgIDxtYXNrIGlkPSJjdXRvdXQiPgogICAgICA8cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iMjQiIGZpbGw9IndoaXRlIi8+CiAgICAgIDxjaXJjbGUgY3g9IjQiICBjeT0iMyIgcj0iMS41IiBmaWxsPSJibGFjayIvPgogICAgICA8Y2lyY2xlIGN4PSIxNCIgY3k9IjMiIHI9IjEuNSIgZmlsbD0iYmxhY2siLz4KICAgICAgPGNpcmNsZSBjeD0iMjQiIGN5PSIzIiByPSIxLjUiIGZpbGw9ImJsYWNrIi8+CiAgICAgIDxjaXJjbGUgY3g9IjM0IiBjeT0iMyIgcj0iMS41IiBmaWxsPSJibGFjayIvPgogICAgICA8cGF0aCBkPSJNOSA2IEM4IDQgNSA0IDUgNiBDNSA4IDcgOSA3IDkgQzcgOSA5IDggOSA2IFoiIGZpbGw9ImJsYWNrIi8+CiAgICAgIDxwYXRoIGQ9Ik0xOSA2IEMxOCA0IDE1IDQgMTUgNiBDMTUgOCAxNyA5IDE3IDkgQzE3IDkgMTkgOCAxOSA2IFoiIGZpbGw9ImJsYWNrIi8+CiAgICAgIDxwYXRoIGQ9Ik0yOSA2IEMyOCA0IDI1IDQgMjUgNiBDMjUgOCAyNyA5IDI3IDkgQzI3IDkgMjkgOCAyOSA2IFoiIGZpbGw9ImJsYWNrIi8+CiAgICA8L21hc2s+CiAgPC9kZWZzPgogIDxwYXRoIGQ9Ik0wIDAgTDQwIDAgTDQwIDE0IEMzNiAxNCAzNiAyMiAzMiAyMiBDMjggMjIgMjggMTQgMjQgMTQgQzIwIDE0IDIwIDIyIDE2IDIyIEMxMiAyMiAxMiAxNCA4IDE0IEM0IDE0IDQgMjIgMCAyMiBaIiBmaWxsPSIjZmZmZmZmIiBtYXNrPSJ1cmwoI2N1dG91dCkiLz4KPC9zdmc+Cg==") repeat-y;
-    background-size: 40px 24px;
+    position: absolute; top: 0; right: -12px; bottom: 0;
+    width: 26px;
+    background: #ffffff;
+    /* 扇贝底边 + 顶部小圆点镂空 + 爱心镂空 */
+    clip-path: path('M0,0 L4,0 L4,3 C4,2 5,1 6,1 C7,1 8,2 8,3 L8,0 L12,0 L12,3 C12,2 13,1 13.5,1 C14,1 15,2 15,3 C15,2 16,1 17,1 C18,1 19,2 19,3 L19,0 L26,0 L26,11 C23,11 23,18 20,18 C17,18 17,11 13,11 C9,11 9,18 6,18 C3,18 3,11 0,11 Z');
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
