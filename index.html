@@ -1344,7 +1344,8 @@ function updateStats() {
   const done = all.filter(t=>state[t.id]).length;
   const total = all.length;
   const pct = total?Math.round(done/total*100):0;
-  document.getElementById('topRate')?.textContent = pct+'%';
+  var _topRateEl = document.getElementById('topRate');
+  if (_topRateEl) _topRateEl.textContent = pct+'%';
   document.getElementById('statDone').textContent = done;
   document.getElementById('statTodo').textContent = total-done;
   document.getElementById('statRate').textContent = pct+'%';
