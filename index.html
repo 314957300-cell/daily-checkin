@@ -143,16 +143,6 @@
     padding: 22px 0;
     gap: 8px;
     flex-shrink: 0;
-    position: relative;
-  }
-  /* 右侧白色波浪形边缘 */
-  .sidebar::after {
-    content: "";
-    position: absolute; top: 0; right: -7px; bottom: 0;
-    width: 14px;
-    /* SVG：左半是白色主体，右半是扇贝波浪（圆头） */
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' preserveAspectRatio='none'><rect x='0' y='0' width='10' height='14' fill='white'/><circle cx='11' cy='3.5' r='3.5' fill='white'/><circle cx='11' cy='10.5' r='3.5' fill='white'/></svg>") repeat-y;
-    background-size: 14px 14px;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
