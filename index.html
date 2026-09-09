@@ -1274,7 +1274,7 @@ function renderCategories(container, data, isBaby) {
           <ul>${s.topics.map(t=>`<li>${t}</li>`).join('')}</ul>
           ${tipsHtml}
           ${s.note?`<div class="tip">${s.note}</div>`:''}
-          ${s.app?`<a href="${s.app.scheme}" class="app-link-btn" target="_blank">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
+          ${s.app?`<a href="${s.app.url}" class="app-link-btn" onclick="return openAppLink(event,'${s.app.name}')">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
         </div>
       `;
     }
