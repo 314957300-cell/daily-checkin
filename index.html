@@ -8,6 +8,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="共长台" />
 <meta name="mobile-web-app-capable" content="yes" />
+
+<!-- Firebase Realtime Database（跨设备打卡同步） -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <link rel="apple-touch-icon" href="./pegasus.png" />
 <link rel="icon" href="./pegasus.png" />
 <link rel="manifest" href='data:application/manifest+json,{"name":"%E5%85%B1%E9%95%BF%E5%8F%B0","short_name":"%E5%85%B1%E9%95%BF%E5%8F%B0","start_url":".","display":"standalone","background_color":"%23FFF0F5","theme_color":"%23E883AF","icons":[{"src":"./pegasus.png","sizes":"256x256","type":"image/png","purpose":"any"}]}' />
@@ -826,11 +830,82 @@ updateClock();
 document.getElementById('coverDate').textContent = `${getTodayStr()} · ${getWeekStr()} · ${getLunarStr()}`;
 document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr()}`;
 
-/* ============ 存储 ============ */
+/* ============ 存储（本地 + Firebase 云同步） ============ */
+
+// ===== Firebase 配置（请填入你的 Firebase 项目信息） =====
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT"
+};
+// ====================================================
+
+let firebaseApp = null;
+let firebaseDb = null;
+try {
+  if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+    firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+    firebaseDb = firebase.database();
+  }
+} catch(e) { console.warn('Firebase init failed:', e); }
+
 function getStorageKey() { return `checkin_${selectedDateKey}`; }
-function loadState() { try { return JSON.parse(localStorage.getItem(getStorageKey())) || {}; } catch(e){ return {}; } }
-function saveState(s){ localStorage.setItem(getStorageKey(), JSON.stringify(s)); }
+function getFirebasePath() { return `checkin/${selectedDateKey}`; }
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(getStorageKey())) || {}; } catch(e){ return {}; }
+}
+function saveState(s){
+  localStorage.setItem(getStorageKey(), JSON.stringify(s));
+  // 同步到 Firebase（实时推送到所有设备）
+  if (firebaseDb) {
+    try { firebaseDb.ref(getFirebasePath()).set(s); } catch(e){ console.warn('FB save:', e); }
+  }
+}
 let state = loadState();
+
+// 从 Firebase 拉取当前日期数据并覆盖本地
+function syncFromFirebase(){
+  if (!firebaseDb) return;
+  firebaseDb.ref(getFirebasePath()).once('value', snap => {
+    const cloud = snap.val();
+    if (cloud && typeof cloud === 'object') {
+      state = cloud;
+      localStorage.setItem(getStorageKey(), JSON.stringify(state));
+      refresh();
+    }
+  });
+}
+
+// 监听 Firebase 当前日期数据变化 → 另一台设备打卡时实时同步
+let fbListener = null;
+function startFirebaseListener(){
+  if (!firebaseDb) return;
+  stopFirebaseListener();
+  fbListener = firebaseDb.ref(getFirebasePath()).on('value', snap => {
+    const cloud = snap.val();
+    if (cloud && typeof cloud === 'object') {
+      // 只在云端数据与本地不同时才更新（避免循环）
+      const localStr = JSON.stringify(state);
+      const cloudStr = JSON.stringify(cloud);
+      if (localStr !== cloudStr) {
+        state = cloud;
+        localStorage.setItem(getStorageKey(), JSON.stringify(state));
+        refresh();
+      }
+    }
+  });
+}
+function stopFirebaseListener(){
+  if (firebaseDb && fbListener) {
+    firebaseDb.ref(getFirebasePath()).off('value', fbListener);
+    fbListener = null;
+  }
+}
+
+// 页面加载：先显示本地数据，再从 Firebase 拉取 + 开启实时监听
+if (firebaseDb) { syncFromFirebase(); startFirebaseListener(); }
 
 /* ============ 日期切换（补打卡） ============ */
 function changeDate(delta) {
@@ -838,12 +913,14 @@ function changeDate(delta) {
   state = loadState();
   refresh();
   updateDateUI();
+  if (firebaseDb) { syncFromFirebase(); startFirebaseListener(); }
 }
 function goToday() {
   selectedDateKey = getTodayKey();
   state = loadState();
   refresh();
   updateDateUI();
+  if (firebaseDb) { syncFromFirebase(); startFirebaseListener(); }
 }
 function updateDateUI() {
   const today = getTodayKey();
