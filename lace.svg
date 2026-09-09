@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="14" height="8" viewBox="0 0 14 8" preserveAspectRatio="none">
+  <!-- 白色主体 + 右侧半圆波浪 -->
+  <path d="M0 0 L8 0 C11 0 11 8 8 8 L0 8 Z" fill="#ffffff"/>
+</svg>
