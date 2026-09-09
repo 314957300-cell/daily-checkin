@@ -516,9 +516,11 @@
     width: 42px; height: 42px; border-radius: 50%;
     background: #fff; box-shadow: var(--shadow);
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; cursor: pointer; z-index: 95;
+    cursor: pointer; z-index: 95;
     transition: transform 0.2s;
+    overflow: hidden;
   }
+  .back-cover img { width: 26px; height: 26px; object-fit: contain; }
   .back-cover:hover { transform: scale(1.1); }
 
   @media (max-width: 768px) {
@@ -678,7 +680,7 @@
   </div>
 </div>
 
-<div class="back-cover" onclick="showCover()" title="返回封面">✨</div>
+<div class="back-cover" onclick="showCover()" title="返回封面"><img src="./back-cover.png" alt="返回" /></div>
 <div class="toast" id="toast"></div>
 
 <script>
