@@ -9,9 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="共长台" />
 <meta name="mobile-web-app-capable" content="yes" />
 
-<!-- Firebase Realtime Database（跨设备打卡同步） -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- LeanCloud 存储 SDK（跨设备打卡同步，国内可访问） -->
+<script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.15.0/dist/av-min.js"></script>
 <link rel="apple-touch-icon" href="./pegasus.png" />
 <link rel="icon" href="./pegasus.png" />
 <link rel="manifest" href='data:application/manifest+json,{"name":"%E5%85%B1%E9%95%BF%E5%8F%B0","short_name":"%E5%85%B1%E9%95%BF%E5%8F%B0","start_url":".","display":"standalone","background_color":"%23FFF0F5","theme_color":"%23E883AF","icons":[{"src":"./pegasus.png","sizes":"256x256","type":"image/png","purpose":"any"}]}' />
@@ -830,63 +829,62 @@ updateClock();
 document.getElementById('coverDate').textContent = `${getTodayStr()} · ${getWeekStr()} · ${getLunarStr()}`;
 document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr()}`;
 
-/* ============ 存储（本地 + Firebase 云同步） ============ */
+/* ============ 存储（本地 + LeanCloud 云同步） ============ */
 
-// ===== Firebase 配置（请填入你的 Firebase 项目信息） =====
-const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT"
+// ===== LeanCloud 配置（请填入你的 LeanCloud 项目信息） =====
+const LC_CONFIG = {
+  appId: "YOUR_APP_ID",
+  appKey: "YOUR_APP_KEY",
+  serverURL: "https://YOUR_SERVER_URL"  // 国内版必填，国际版可留空字符串
 };
-// ====================================================
+// =======================================================
 
-let firebaseApp = null;
-let firebaseDb = null;
+let lcReady = false;
 try {
-  if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
-    firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
-    firebaseDb = firebase.database();
+  if (typeof AV !== 'undefined' && LC_CONFIG.appId !== 'YOUR_APP_ID') {
+    AV.init(LC_CONFIG);
+    lcReady = true;
   }
-} catch(e) { console.warn('Firebase init failed:', e); }
+} catch(e) { console.warn('LeanCloud init failed:', e); }
 
 function getStorageKey() { return `checkin_${selectedDateKey}`; }
-function getFirebasePath() { return `checkin/${selectedDateKey}`; }
 
 function loadState() {
   try { return JSON.parse(localStorage.getItem(getStorageKey())) || {}; } catch(e){ return {}; }
 }
 function saveState(s){
   localStorage.setItem(getStorageKey(), JSON.stringify(s));
-  // 同步到 Firebase（实时推送到所有设备）
-  if (firebaseDb) {
-    try { firebaseDb.ref(getFirebasePath()).set(s); } catch(e){ console.warn('FB save:', e); }
-  }
+  // 异步同步到 LeanCloud
+  if (lcReady) saveToCloud(s);
 }
 let state = loadState();
 
-// 从 Firebase 拉取当前日期数据并覆盖本地
-function syncFromFirebase(){
-  if (!firebaseDb) return;
-  firebaseDb.ref(getFirebasePath()).once('value', snap => {
-    const cloud = snap.val();
-    if (cloud && typeof cloud === 'object') {
-      state = cloud;
-      localStorage.setItem(getStorageKey(), JSON.stringify(state));
-      refresh();
+// 写入云端（upsert：有则更新，无则新建）
+function saveToCloud(s){
+  const query = new AV.Query('Checkin');
+  query.equalTo('date', selectedDateKey);
+  query.first().then(obj => {
+    if (obj) {
+      obj.set('data', s);
+      obj.save();
+    } else {
+      const Checkin = AV.Object.extend('Checkin');
+      const o = new Checkin();
+      o.set('date', selectedDateKey);
+      o.set('data', s);
+      o.save();
     }
-  });
+  }).catch(e => console.warn('LC save:', e));
 }
 
-// 监听 Firebase 当前日期数据变化 → 另一台设备打卡时实时同步
-let fbListener = null;
-function startFirebaseListener(){
-  if (!firebaseDb) return;
-  stopFirebaseListener();
-  fbListener = firebaseDb.ref(getFirebasePath()).on('value', snap => {
-    const cloud = snap.val();
-    if (cloud && typeof cloud === 'object') {
-      // 只在云端数据与本地不同时才更新（避免循环）
+// 从云端拉取当前日期数据
+function syncFromCloud(){
+  if (!lcReady) return;
+  const query = new AV.Query('Checkin');
+  query.equalTo('date', selectedDateKey);
+  query.first().then(obj => {
+    if (obj) {
+      const cloud = obj.get('data') || {};
       const localStr = JSON.stringify(state);
       const cloudStr = JSON.stringify(cloud);
       if (localStr !== cloudStr) {
@@ -895,17 +893,12 @@ function startFirebaseListener(){
         refresh();
       }
     }
-  });
-}
-function stopFirebaseListener(){
-  if (firebaseDb && fbListener) {
-    firebaseDb.ref(getFirebasePath()).off('value', fbListener);
-    fbListener = null;
-  }
+  }).catch(e => console.warn('LC sync:', e));
 }
 
-// 页面加载：先显示本地数据，再从 Firebase 拉取 + 开启实时监听
-if (firebaseDb) { syncFromFirebase(); startFirebaseListener(); }
+// 定时轮询云端（每 10 秒同步一次，实现跨设备准实时同步）
+setInterval(syncFromCloud, 10000);
+if (lcReady) syncFromCloud();
 
 /* ============ 日期切换（补打卡） ============ */
 function changeDate(delta) {
@@ -913,14 +906,14 @@ function changeDate(delta) {
   state = loadState();
   refresh();
   updateDateUI();
-  if (firebaseDb) { syncFromFirebase(); startFirebaseListener(); }
+  if (lcReady) syncFromCloud();
 }
 function goToday() {
   selectedDateKey = getTodayKey();
   state = loadState();
   refresh();
   updateDateUI();
-  if (firebaseDb) { syncFromFirebase(); startFirebaseListener(); }
+  if (lcReady) syncFromCloud();
 }
 function updateDateUI() {
   const today = getTodayKey();
