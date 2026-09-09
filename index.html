@@ -142,14 +142,13 @@
     border-right: none;
     position: relative;
   }
-  /* 白色竖版波浪线隔离 */
+  /* 目录条右侧朝外白色波浪（SVG 背景图，平铺） */
   .sidebar::after {
     content: "";
-    position: absolute;
-    top: 0; right: -4px; bottom: 0;
-    width: 8px;
-    background:
-      radial-gradient(circle at 4px 4px,  #fff 4px, transparent 4.5px) 0 0 / 8px 8px repeat-y;
+    position: absolute; top: 0; right: -7px; bottom: 0;
+    width: 14px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' preserveAspectRatio='none'><rect x='0' y='0' width='14' height='7' fill='white'/><path d='M0,7 Q7,14 14,7 Z' fill='white'/></svg>") repeat-y;
+    background-size: 14px 14px;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
@@ -196,6 +195,17 @@
   .topbar-right { text-align: right; }
   .topbar-time { font-size: 22px; font-weight: 700; color: var(--primary-dark); font-variant-numeric: tabular-nums; }
   .topbar-weather { font-size: 13px; color: var(--text-light); }
+  /* 日期切换按钮 */
+  .date-nav {
+    background: var(--primary); color: #fff; border: none; width: 22px; height: 22px;
+    border-radius: 50%; font-size: 14px; line-height: 1; cursor: pointer;
+    margin: 0 4px; display: inline-flex; align-items: center; justify-content: center;
+    padding: 0; vertical-align: middle;
+  }
+  .date-nav-today {
+    background: transparent; color: var(--primary-dark); border: 1px solid var(--primary);
+    border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer; margin-left: 6px;
+  }
   .rate-badge {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--primary);
@@ -551,6 +561,8 @@
     .topbar-left p { font-size: 11px; }
     .topbar-time { font-size: 17px; }
     .topbar-weather { font-size: 12px; }
+    .date-nav { width: 18px; height: 18px; font-size: 12px; }
+    .date-nav-today { font-size: 10px; padding: 1px 6px; }
     .rate-badge { padding: 4px 12px; font-size: 12px; }
     .home-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
     .stat-card { padding: 12px 8px; border-radius: 16px; }
@@ -696,16 +708,29 @@
 
 <script>
 /* ============ 日期 & 时间 ============ */
+let selectedDateKey = getTodayKey(); // 当前查看/打卡的日期
 function getTodayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+function dateKeyToObj(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function shiftDateKey(key, days) {
+  const d = dateKeyToObj(key);
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 function getTodayStr() {
-  const d = new Date();
+  const d = dateKeyToObj(selectedDateKey);
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
 }
 function getWeekStr() {
   return ["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];
+}
+function getWeekStrOf(key) {
+  return ["周日","周一","周二","周三","周四","周五","周六"][dateKeyToObj(key).getDay()];
 }
 function getLunarStr() {
   const lunarMonths = ["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","冬月","腊月"];
@@ -738,10 +763,34 @@ document.getElementById('coverDate').textContent = `${getTodayStr()} · ${getWee
 document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr()}`;
 
 /* ============ 存储 ============ */
-const STORAGE_KEY = `checkin_${getTodayKey()}`;
-function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e){ return {}; } }
-function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+function getStorageKey() { return `checkin_${selectedDateKey}`; }
+function loadState() { try { return JSON.parse(localStorage.getItem(getStorageKey())) || {}; } catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(getStorageKey(), JSON.stringify(s)); }
 let state = loadState();
+
+/* ============ 日期切换（补打卡） ============ */
+function changeDate(delta) {
+  selectedDateKey = shiftDateKey(selectedDateKey, delta);
+  state = loadState();
+  refresh();
+  updateDateUI();
+}
+function goToday() {
+  selectedDateKey = getTodayKey();
+  state = loadState();
+  refresh();
+  updateDateUI();
+}
+function updateDateUI() {
+  const today = getTodayKey();
+  const el = document.getElementById('curDate');
+  if (el) el.innerHTML = `
+    <button class="date-nav" onclick="changeDate(-1)" title="前一天">‹</button>
+    <span>${getTodayStr()} ${getWeekStrOf(selectedDateKey)}</span>
+    <button class="date-nav" onclick="changeDate(1)" title="后一天">›</button>
+    ${selectedDateKey !== today ? `<button class="date-nav-today" onclick="goToday()">回到今天</button>` : ''}
+  `;
+}
 
 /* ============ 金句池 ============ */
 const QUOTES = [
@@ -1274,6 +1323,7 @@ function refresh() {
   updateStats();
   renderSummary();
   renderWeather();
+  updateDateUI();
 }
 
 function updateStats() {
