@@ -142,18 +142,14 @@
     border-right: none;
     position: relative;
   }
-  /* 白色蕾丝右边框（竖版，避开 sidebar logo，无缝拼接） */
+  /* 白色竖版波浪线隔离 */
   .sidebar::after {
     content: "";
     position: absolute;
-    top: 90px; right: -12px; bottom: 0;
-    width: 26px;
-    /* 精确匹配图片周期：192×1200 原图 → 26px 宽，高度按比例缩放后是 162px 周期 */
-    background: url("./lace-trim.png") center/26px auto repeat-y;
-    background-position: center 0;
-    /* 让蕾丝在最后一段自动裁切，避免接缝突兀 */
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 6px), transparent 100%);
-            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 6px), transparent 100%);
+    top: 0; right: -4px; bottom: 0;
+    width: 8px;
+    background:
+      radial-gradient(circle at 4px 4px,  #fff 4px, transparent 4.5px) 0 0 / 8px 8px repeat-y;
   }
   .sidebar-logo {
     font-size: 22px; font-weight: 800; color: var(--primary-dark);
@@ -545,7 +541,7 @@
     .nav-icon img { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; }
     .nav-item.active .nav-icon img { filter: brightness(0) invert(1); }
     .sidebar-logo { font-size: 18px; margin-bottom: 10px; }
-    .main { padding: 12px; }
+    .main { padding: 12px; background: url("./innerbg.jpg") center/cover no-repeat fixed; }
     .cover-greet { font-size: 26px; }
     .cover { padding: 36px 20px 24px; }
 
