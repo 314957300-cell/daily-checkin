@@ -494,56 +494,6 @@
     font-size: 13px; color: var(--text-light); margin-bottom: 14px;
   }
 
-  /* ============ 记账 ============ */
-  .money-summary {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px;
-    margin-bottom: 20px;
-  }
-  .money-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,220,233,0.5));
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.9);
-    border-radius: 16px; padding: 16px; text-align: center; box-shadow: var(--shadow);
-  }
-  .money-num { font-size: 24px; font-weight: 800; color: var(--primary-dark); }
-  .money-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-  .money-add {
-    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,240,245,0.6));
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.9);
-    border-radius: 18px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;
-  }
-  .money-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .money-input {
-    border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px;
-    font-size: 14px; background: #fff; color: var(--text); outline: none;
-  }
-  .money-input:focus { border-color: var(--primary); }
-  .money-amount { flex: 1; min-width: 100px; }
-  .money-cat { min-width: 110px; }
-  .money-save { padding: 10px 24px; }
-  .money-list-wrap {
-    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,240,245,0.6));
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.9);
-    border-radius: 18px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;
-  }
-  .money-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; background: var(--bg-soft); border-radius: 10px;
-    margin-bottom: 8px; font-size: 14px;
-  }
-  .money-cat-icon { font-size: 18px; }
-  .money-cat-name { font-weight: 600; }
-  .money-time { color: var(--text-light); font-size: 12px; margin-left: 4px; }
-  .money-amt { margin-left: auto; color: var(--accent-dark); font-weight: 700; }
-  .money-del {
-    background: none; border: none; color: var(--text-light); font-size: 18px;
-    cursor: pointer; padding: 0 4px; line-height: 1;
-  }
-  .money-del:hover { color: var(--accent-dark); }
-  .money-shark { text-align: center; padding: 8px 0 20px; }
-
   /* ============ FOOTER ============ */
   .footer-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
   .btn {
@@ -708,41 +658,6 @@
     <div class="view" id="view-baby">
       <div class="section-title">💛 小哎呦启蒙打卡 <span class="badge-small" id="babyBadge">0/0</span></div>
       <div class="categories" id="babyCategories"></div>
-    </div>
-
-    <!-- MONEY VIEW -->
-    <div class="view" id="view-money">
-      <div class="section-title">🧾 记账 <span class="badge-small">与鲨鱼记账同步</span></div>
-      <div class="money-summary">
-        <div class="money-card"><div class="money-num" id="moneyToday">¥0</div><div class="money-label">今日支出</div></div>
-        <div class="money-card"><div class="money-num" id="moneyWeek">¥0</div><div class="money-label">本周支出</div></div>
-        <div class="money-card"><div class="money-num" id="moneyMonth">¥0</div><div class="money-label">本月支出</div></div>
-        <div class="money-card"><div class="money-num" id="moneyCount">0</div><div class="money-label">记录笔数</div></div>
-      </div>
-      <div class="money-add">
-        <div class="section-title" style="margin-bottom:12px">➕ 记一笔</div>
-        <div class="money-form">
-          <input type="number" id="moneyAmount" placeholder="金额" class="money-input money-amount" step="0.01" />
-          <select id="moneyCat" class="money-input money-cat">
-            <option value="餐饮">🍜 餐饮</option>
-            <option value="交通">🚗 交通</option>
-            <option value="购物">🛍️ 购物</option>
-            <option value="居家">🏠 居家</option>
-            <option value="育儿">🧒 育儿</option>
-            <option value="娱乐">🎬 娱乐</option>
-            <option value="医疗">💊 医疗</option>
-            <option value="其他">📌 其他</option>
-          </select>
-          <button class="btn btn-primary money-save" onclick="addExpense()">保存</button>
-        </div>
-      </div>
-      <div class="money-list-wrap">
-        <div class="section-title" style="margin-bottom:12px">📋 今日明细</div>
-        <div id="moneyList"></div>
-      </div>
-      <div class="money-shark">
-        <a href="https://apps.apple.com/cn/search?term=%E9%B2%A8%E9%B1%BC%E8%AE%B0%E8%B4%A6" class="app-link-btn" onclick="return openAppLink(event,'鲨鱼记账')">🦈 打开鲨鱼记账 · 同步完整账单</a>
-      </div>
     </div>
 
     <!-- REVIEW VIEW -->
@@ -985,6 +900,37 @@ const PINYIN_GAMES = [
   "听音找卡：家长读，孩子找对应拼音"
 ];
 
+/* 科普听读主粮：科学队长（北大/清华等科学家主讲，24档×52期体系化音频，
+   覆盖生命科学/物质科学/宇宙与地球/技术与工程四大学科，3-9岁，喜马拉雅/微信公众号可听） */
+const SCIENCE_SERIES = [
+  {field:"生命科学", name:"科学家讲给孩子的生命科学·植物篇", topic:"认识花草树木，种子怎么发芽、植物怎么吃饭"},
+  {field:"生命科学", name:"科学家讲给孩子的生命科学·动物篇", topic:"身边的小动物和昆虫，它们怎样生活长大"},
+  {field:"生命科学", name:"科学家讲给孩子的人体课", topic:"认识自己的身体：心跳、消化、大脑和五感"},
+  {field:"生命科学", name:"古生物学家讲恐龙与远古生命", topic:"恐龙时代、化石和生命演化的故事"},
+  {field:"物质科学", name:"物理学家讲看不见的力", topic:"重力、浮力、摩擦力——生活里的物理现象"},
+  {field:"物质科学", name:"物理学家讲光与声音", topic:"影子、彩虹、回声是怎么来的"},
+  {field:"物质科学", name:"化学家讲物质的变化", topic:"厨房和浴室里的化学小魔术（盐、糖、醋、油）"},
+  {field:"宇宙与地球", name:"天文学家讲宇宙", topic:"太阳、月亮、星星和白天黑夜"},
+  {field:"宇宙与地球", name:"地球科学家讲我们的星球", topic:"山川海洋、天气四季和地震火山"},
+  {field:"技术与工程", name:"工程师讲交通工具", topic:"汽车、火车、飞机为什么能动起来"},
+  {field:"技术与工程", name:"工程师讲身边的科技", topic:"电、网络、机器人怎样为我们工作"},
+  {field:"综合启蒙", name:"音频版《十万个为什么》", topic:"每天一个为什么，保护并满足好奇心"}
+];
+/* 科普思维小游戏（观察/分类/因果/假设验证） */
+const SCIENCE_GAMES = [
+  "分类小达人：把家里物品按颜色/材质/用途分成几堆",
+  "沉浮实验：把小物件放进水盆，先猜再看哪些沉哪些浮",
+  "影子追踪：上午和下午观察同一物体影子的长短方向",
+  "种豆观察：种一颗豆子，每天画下它的变化",
+  "磁铁寻宝：用磁铁找出家里能被吸住的东西",
+  "天气记录：连续一周画下晴雨云和温度",
+  "放大镜侦探：用放大镜观察树叶纹路、指纹、小虫子",
+  "小小建筑师：用纸杯/积木搭一座不塌的桥，比比谁承重多",
+  "因果猜猜看：为什么冰会化？为什么天会黑？先猜答案再查证",
+  "感官盲盒：蒙眼摸/闻/尝，说出是什么物品"
+];
+function todayScience(){ return SCIENCE_SERIES[dayOfYear() % SCIENCE_SERIES.length]; }
+
 /* 居家跟练视频建议（苹果型/悬垂腹/膝盖友好） */
 const WORKOUTS = [
   {who:"欧阳春晓", name:"10分钟无跑跳有氧燃脂", tag:"有氧", note:"全程站立无跳跃，膝盖友好"},
@@ -1076,18 +1022,7 @@ const MOM_DATA = [
       {id:"m3", text:"晨间护肤（洁面+水+精华+乳+防晒）", tag:"早"},
       {id:"m4", text:"晚间护肤（卸妆洁面+精华+面霜）", tag:"晚"}
     ],
-    suggestion:{
-      topics:[
-        "晨间：洁面→爽肤水→精华→乳液→防晒霜（黄白皮暗沉重点：维C精华提亮+严格防晒）",
-        "晚间：卸妆→洁面→爽肤水→面膜(周2-3次)→精华→面霜（重点：保湿+修护）",
-        "去角质每周1次，避免过度清洁导致屏障受损"
-      ],
-      tips:[
-        "黄白皮暗沉粗糙：早C晚A（早维C抗氧化，晚A醇修护），建立耐受从低浓度开始",
-        "应季性鼻炎期：简化护肤步骤，只用修护类，避免香精酒精刺激"
-      ],
-      note:"面膜建议：每周2-3次（清洁面膜1次+补水面膜2次），隔天使用不连续敷。"
-    }
+    weeklyTask:{ dow:4, task:{id:"m4t", text:"敷面膜（每周四深度护理）", tag:"周护"} }
   },
   {
     name:"英语学习", icon:"📚", color:"#FFB8D1",
@@ -1101,7 +1036,8 @@ const MOM_DATA = [
         "重点句型：" + todayWow().focus,
         "跟练任务：" + todayWow().task
       ],
-      note:"先完整看1遍理解，再跟读重点句型，最后用英语和孩子互动。同一集可重复2-3天直至掌握。"
+      note:"先完整看1遍理解，再跟读重点句型，最后用英语和孩子互动。同一集可重复2-3天直至掌握。",
+      app:{name:"多邻国", url:"https://apps.apple.com/cn/app/id570060128", icon:"🦉", desc:"打开多邻国打卡"}
     }
   },
   {
@@ -1213,9 +1149,18 @@ const BABY_DATA = [
   {
     name:"科普思维", icon:"🔬", color:"#F6BFDA",
     tasks:[
-      {id:"b12", text:"科普听读（音频/绘本）", tag:"输入"},
+      {id:"b12", text:"科普听读（科学队长 1集/约10分钟）", tag:"输入"},
       {id:"b13", text:"思维 / 逻辑小游戏", tag:"游戏"}
-    ]
+    ],
+    suggestion:{
+      topics:[
+        (() => { const s = todayScience(); return `今日听读【${s.field}】${s.name}：${s.topic}`; })(),
+        "听读法：按专辑顺序每天听1集约10分钟，听完让孩子用「我学到了…」复述一句",
+        "今日思维游戏：" + pick(SCIENCE_GAMES,1,8)[0]
+      ],
+      note:"科普主粮用「科学队长」——北大/清华等科学家主讲的体系化音频（24档×52期，覆盖生命/物质/宇宙地球/工程技术），3-9岁。点下方按钮在喜马拉雅搜「科学队长」，按专辑顺序听；同一集可连听2天再换下一集。",
+      app:{name:"喜马拉雅", url:"https://apps.apple.com/cn/search?term=%E5%96%9C%E9%A9%AC%E6%8B%89%E9%9B%85%20%E7%A7%91%E5%AD%A6%E9%98%9F%E9%95%BF", icon:"🎧", desc:"听科学队长"}
+    }
   },
   {
     name:"手风琴", icon:"🎹", color:"#FFB8D1",
@@ -1241,9 +1186,18 @@ const BABY_DATA = [
 /* ============ 渲染 ============ */
 function tagColor(tag){
   if(["早","晚"].includes(tag)) return "green";
-  if(["护眼","作息","复习","识字","阅读","输入","乐器"].includes(tag)) return "blue";
+  if(["护眼","作息","复习","识字","阅读","输入","乐器","周护"].includes(tag)) return "blue";
   if(["今日"].includes(tag)) return "";
   return "gray";
+}
+
+/* 某分类当天实际生效的打卡项：基础项 + 当天命中的每周固定任务（如周四敷面膜） */
+function activeTasks(cat){
+  const list = cat.tasks.slice();
+  if (cat.weeklyTask && new Date().getDay() === cat.weeklyTask.dow) {
+    list.push(cat.weeklyTask.task);
+  }
+  return list;
 }
 
 function renderCategories(container, data, isBaby) {
@@ -1310,7 +1264,7 @@ function refresh() {
 }
 
 function updateStats() {
-  const all = [...MOM_DATA, ...BABY_DATA].flatMap(c=>c.tasks);
+  const all = [...MOM_DATA, ...BABY_DATA].flatMap(c=>activeTasks(c));
   const done = all.filter(t=>state[t.id]).length;
   const total = all.length;
   const pct = total?Math.round(done/total*100):0;
@@ -1320,19 +1274,20 @@ function updateStats() {
   document.getElementById('statRate').textContent = pct+'%';
   document.getElementById('statTotal').textContent = total;
 
-  const momT = MOM_DATA.flatMap(c=>c.tasks);
+  const momT = MOM_DATA.flatMap(c=>activeTasks(c));
   const momD = momT.filter(t=>state[t.id]).length;
   document.getElementById('momBadge').textContent = `${momD}/${momT.length}`;
 
-  const babyT = BABY_DATA.flatMap(c=>c.tasks);
+  const babyT = BABY_DATA.flatMap(c=>activeTasks(c));
   const babyD = babyT.filter(t=>state[t.id]).length;
   document.getElementById('babyBadge').textContent = `${babyD}/${babyT.length}`;
 }
 
 function miniCatHTML(cats) {
   return cats.map(c => {
-    const total = c.tasks.length;
-    const done = c.tasks.filter(t=>state[t.id]).length;
+    const tasks = activeTasks(c);
+    const total = tasks.length;
+    const done = tasks.filter(t=>state[t.id]).length;
     const pct = total?Math.round(done/total*100):0;
     return `
       <div class="mini-cat">
@@ -1551,7 +1506,6 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (v==='week') renderReview();
     if (v==='topic') renderTopic();
     if (v==='meal') renderMeal();
-    if (v==='money') renderMoney();
     window.scrollTo({top:0, behavior:'smooth'});
   });
 });
@@ -1725,62 +1679,6 @@ function renderReview() {
 
 // 兼容旧调用
 function renderWeekly() { renderReview(); }
-
-/* ============ 记账（本地 + 鲨鱼记账跳转） ============ */
-const MONEY_KEY = 'money_records';
-function loadMoney(){ try { return JSON.parse(localStorage.getItem(MONEY_KEY)) || []; } catch(e){ return []; } }
-function saveMoney(r){ localStorage.setItem(MONEY_KEY, JSON.stringify(r)); }
-
-function addExpense(){
-  const amt = parseFloat(document.getElementById('moneyAmount').value);
-  const cat = document.getElementById('moneyCat').value;
-  if (!amt || amt <= 0) { showToast('请输入有效金额'); return; }
-  const records = loadMoney();
-  records.push({ id: Date.now(), amount: amt, cat: cat, date: getTodayKey(), time: new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}) });
-  saveMoney(records);
-  document.getElementById('moneyAmount').value = '';
-  showToast('已记一笔 ¥' + amt.toFixed(2));
-  renderMoney();
-}
-
-function delExpense(id){
-  if (!confirm('删除这笔记录？')) return;
-  let records = loadMoney().filter(r => r.id !== id);
-  saveMoney(records);
-  renderMoney();
-}
-
-function sumByRange(records, days){
-  const set = new Set(days);
-  return records.filter(r => set.has(r.date)).reduce((s,r) => s + r.amount, 0);
-}
-
-function renderMoney(){
-  const records = loadMoney();
-  const today = getTodayKey();
-  const todayList = records.filter(r => r.date === today).sort((a,b) => b.id - a.id);
-  const todaySum = todayList.reduce((s,r) => s + r.amount, 0);
-  const weekSum = sumByRange(records, getLastNDays(7));
-  const monthSum = sumByRange(records, getLastNDays(30));
-
-  document.getElementById('moneyToday').textContent = '¥' + todaySum.toFixed(2);
-  document.getElementById('moneyWeek').textContent = '¥' + weekSum.toFixed(2);
-  document.getElementById('moneyMonth').textContent = '¥' + monthSum.toFixed(2);
-  document.getElementById('moneyCount').textContent = todayList.length;
-
-  const catIcons = {"餐饮":"🍜","交通":"🚗","购物":"🛍️","居家":"🏠","育儿":"🧒","娱乐":"🎬","医疗":"💊","其他":"📌"};
-  document.getElementById('moneyList').innerHTML = todayList.length
-    ? todayList.map(r => `
-        <div class="money-item">
-          <span class="money-cat-icon">${catIcons[r.cat]||'📌'}</span>
-          <span class="money-cat-name">${r.cat}</span>
-          <span class="money-time">${r.time}</span>
-          <span class="money-amt">-¥${r.amount.toFixed(2)}</span>
-          <button class="money-del" onclick="delExpense(${r.id})">×</button>
-        </div>
-      `).join('')
-    : `<div style="text-align:center;color:var(--text-light);padding:24px">今天还没有记录，记一笔吧 ✨</div>`;
-}
 
 /* App 链接跳转：iOS 直接走 https（App Store/通用链接可唤起），安卓尝试应用市场 */
 function openAppLink(ev, name){
