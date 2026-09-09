@@ -174,16 +174,25 @@
 
   /* ============ TOP BAR ============ */
   .topbar {
-    background: linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(255,240,245,0.66) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.9);
-    border-radius: 20px;
-    padding: 20px 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 16px 0 8px 0;
+    box-shadow: none;
+    margin-bottom: 12px;
     display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
   }
+  /* 首页 topbar：左对齐时间/日期/完成率 + 右侧小马 */
+  .home-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%;
+  }
+  .home-topbar-left { display: flex; flex-direction: column; gap: 2px; }
+  .home-topbar-time { font-size: 32px; font-weight: 800; color: var(--text); letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+  .home-topbar-date { font-size: 16px; color: var(--text-light); font-weight: 500; }
+  .home-topbar-rate { font-size: 16px; color: var(--text); font-weight: 500; }
+  .home-topbar-rate span { font-size: 30px; font-weight: 800; color: var(--accent); margin-left: 4px; }
+  .home-topbar-pony { height: 120px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(232,131,175,0.3)); }
   .topbar-left h2 { font-size: 22px; font-weight: 700; }
   .topbar-left p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
   .topbar-right { text-align: right; }
@@ -215,6 +224,7 @@
   .view.active { display: block; }
   .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
   .stat-card {
+    position: relative;
     background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,220,233,0.5));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -224,6 +234,13 @@
     box-shadow: var(--shadow);
     text-align: center;
     transition: transform 0.2s;
+  }
+  .stat-card::after {
+    content: "";
+    position: absolute; top: -10px; right: -10px;
+    width: 36px; height: 36px;
+    background: url("./bow.png") center/contain no-repeat;
+    pointer-events: none;
   }
   .stat-card:hover { transform: translateY(-2px); }
   .home-grid .stat-card:nth-child(1) { background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,240,245,0.65)); }
@@ -550,11 +567,12 @@
     .cover { padding: 36px 20px 24px; }
 
     /* 首页单屏适配 */
-    .topbar { padding: 12px 14px; margin-bottom: 12px; border-radius: 16px; gap: 8px; }
-    .topbar-left h2 { font-size: 17px; }
-    .topbar-left p { font-size: 11px; }
-    .topbar-time { font-size: 17px; }
-    .topbar-weather { font-size: 12px; }
+    .topbar { padding: 12px 0 4px 0; margin-bottom: 8px; border-radius: 16px; gap: 8px; }
+    .home-topbar-time { font-size: 24px; }
+    .home-topbar-date { font-size: 13px; }
+    .home-topbar-rate { font-size: 13px; }
+    .home-topbar-rate span { font-size: 22px; }
+    .home-topbar-pony { height: 78px; }
     .date-nav { width: 18px; height: 18px; font-size: 12px; }
     .date-nav-today { font-size: 10px; padding: 1px 6px; }
     .rate-badge { padding: 4px 12px; font-size: 12px; }
@@ -604,14 +622,19 @@
   <div class="main">
     <!-- TOP BAR -->
     <div class="topbar">
+      <!-- 首页用：左对齐时间/日期/完成率 + 右侧小马图 -->
+      <div class="home-topbar" id="homeTopbar">
+        <div class="home-topbar-left">
+          <div class="home-topbar-time" id="curTime">--:--:--</div>
+          <div class="home-topbar-date" id="curDate">--</div>
+          <div class="home-topbar-rate">完成率 <span id="topRate">0%</span></div>
+        </div>
+        <img class="home-topbar-pony" src="./pegasus-small.png" alt="pony" />
+      </div>
+      <!-- 其他板块用：标题 -->
       <div class="topbar-left" id="topbarTitle" style="display:none">
         <h2 id="viewTitle"></h2>
         <p id="viewSubtitle"></p>
-      </div>
-      <div class="topbar-right">
-        <div class="topbar-time" id="curTime">--:--:--</div>
-        <div class="topbar-weather" id="curDate">--</div>
-        <div class="rate-badge">完成率 <span id="topRate">0%</span></div>
       </div>
     </div>
 
@@ -1559,7 +1582,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
     document.getElementById('view-'+v).classList.add('active');
     document.getElementById('viewTitle').textContent = VIEW_TITLES[v].t;
     document.getElementById('viewSubtitle').textContent = VIEW_TITLES[v].s;
-    // 首页隐藏标题（用名言置顶），其他板块显示
+    // 首页显示 home-topbar（时间/日期/完成率+小马），其他板块显示 topbarTitle
+    document.getElementById('homeTopbar').style.display = v === 'home' ? 'flex' : 'none';
     document.getElementById('topbarTitle').style.display = v === 'home' ? 'none' : 'block';
     if (v==='week') renderReview();
     if (v==='topic') renderTopic();
