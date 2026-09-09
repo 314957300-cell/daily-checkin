@@ -161,6 +161,8 @@
   .nav-item:hover { background: rgba(255,255,255,0.6); color: var(--primary-dark); }
   .nav-item.active { background: var(--primary); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(232, 131, 175,0.4); }
   .nav-icon { font-size: 22px; }
+  .nav-icon img { width: 24px; height: 24px; object-fit: contain; border-radius: 5px; vertical-align: middle; }
+  .nav-item.active .nav-icon img { filter: brightness(0) invert(1); }
 
   .main {
     flex: 1; padding: 24px 28px; overflow-y: auto; max-width: 100%;
@@ -523,6 +525,8 @@
     .sidebar { width: 72px; padding: 14px 0; }
     .nav-item { width: 58px; font-size: 11px; padding: 10px 2px; }
     .nav-icon { font-size: 18px; }
+    .nav-icon img { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; }
+    .nav-item.active .nav-icon img { filter: brightness(0) invert(1); }
     .sidebar-logo { font-size: 18px; margin-bottom: 10px; }
     .main { padding: 12px; }
     .cover-greet { font-size: 26px; }
@@ -570,12 +574,12 @@
 <!-- ============ APP ============ -->
 <div class="app" id="app">
   <aside class="sidebar">
-    <div class="nav-item active" data-view="home"><div class="nav-icon">🏠</div>首页</div>
-    <div class="nav-item" data-view="mom"><div class="nav-icon">🎀</div>摇一摇</div>
-    <div class="nav-item" data-view="baby"><div class="nav-icon">💛</div>小哎呦</div>
-    <div class="nav-item" data-view="topic"><div class="nav-icon">💬</div>话题</div>
-    <div class="nav-item" data-view="meal"><div class="nav-icon">🥪</div>饮食</div>
-    <div class="nav-item" data-view="week"><div class="nav-icon">☁️</div>复盘</div>
+    <div class="nav-item active" data-view="home"><div class="nav-icon"><img src="./nav-home.png" alt="首页" /></div>首页</div>
+    <div class="nav-item" data-view="mom"><div class="nav-icon"><img src="./nav-mom.png" alt="摇一摇" /></div>摇一摇</div>
+    <div class="nav-item" data-view="baby"><div class="nav-icon"><img src="./nav-baby.png" alt="小哎呦" /></div>小哎呦</div>
+    <div class="nav-item" data-view="topic"><div class="nav-icon"><img src="./nav-topic.png" alt="话题" /></div>话题</div>
+    <div class="nav-item" data-view="meal"><div class="nav-icon"><img src="./nav-meal.png" alt="饮食" /></div>饮食</div>
+    <div class="nav-item" data-view="week"><div class="nav-icon"><img src="./nav-review.jpg" alt="复盘" /></div>复盘</div>
   </aside>
 
   <div class="main">
