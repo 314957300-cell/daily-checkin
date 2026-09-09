@@ -184,14 +184,12 @@
   }
   /* 首页 topbar：左对齐时间/日期/完成率 + 右侧小马 */
   .home-topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%;
+    display: flex; justify-content: flex-start; align-items: center;
+    width: 100%; gap: 20px;
   }
   .home-topbar-left { display: flex; flex-direction: column; gap: 2px; }
-  .home-topbar-time { font-size: 32px; font-weight: 800; color: var(--text); letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+  .home-topbar-time { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: 5px; font-variant-numeric: tabular-nums; }
   .home-topbar-date { font-size: 16px; color: var(--text-light); font-weight: 500; }
-  .home-topbar-rate { font-size: 16px; color: var(--text); font-weight: 500; }
-  .home-topbar-rate span { font-size: 30px; font-weight: 800; color: var(--accent); margin-left: 4px; }
   .home-topbar-pony { height: 120px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(232,131,175,0.3)); }
   .topbar-left h2 { font-size: 22px; font-weight: 700; }
   .topbar-left p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
@@ -568,11 +566,10 @@
 
     /* 首页单屏适配 */
     .topbar { padding: 12px 0 4px 0; margin-bottom: 8px; border-radius: 16px; gap: 8px; }
-    .home-topbar-time { font-size: 24px; }
+    .home-topbar { gap: 12px; }
+    .home-topbar-time { font-size: 24px; letter-spacing: 3px; }
     .home-topbar-date { font-size: 13px; }
-    .home-topbar-rate { font-size: 13px; }
-    .home-topbar-rate span { font-size: 22px; }
-    .home-topbar-pony { height: 78px; }
+    .home-topbar-pony { height: 72px; }
     .date-nav { width: 18px; height: 18px; font-size: 12px; }
     .date-nav-today { font-size: 10px; padding: 1px 6px; }
     .rate-badge { padding: 4px 12px; font-size: 12px; }
@@ -627,7 +624,6 @@
         <div class="home-topbar-left">
           <div class="home-topbar-time" id="curTime">--:--:--</div>
           <div class="home-topbar-date" id="curDate">--</div>
-          <div class="home-topbar-rate">完成率 <span id="topRate">0%</span></div>
         </div>
         <img class="home-topbar-pony" src="./pegasus-small.png" alt="pony" />
       </div>
@@ -1348,7 +1344,7 @@ function updateStats() {
   const done = all.filter(t=>state[t.id]).length;
   const total = all.length;
   const pct = total?Math.round(done/total*100):0;
-  document.getElementById('topRate').textContent = pct+'%';
+  document.getElementById('topRate')?.textContent = pct+'%';
   document.getElementById('statDone').textContent = done;
   document.getElementById('statTodo').textContent = total-done;
   document.getElementById('statRate').textContent = pct+'%';
