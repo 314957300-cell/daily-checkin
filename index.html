@@ -188,6 +188,8 @@
     width: 100%; gap: 20px;
   }
   .home-topbar-left { display: flex; flex-direction: column; gap: 2px; }
+  .home-topbar-time-row { display: flex; align-items: center; gap: 6px; }
+  .home-topbar-rabbit { height: 36px; width: auto; object-fit: contain; }
   .home-topbar-time { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: 5px; font-variant-numeric: tabular-nums; }
   .home-topbar-date { font-size: 16px; color: var(--text-light); font-weight: 500; }
   .home-topbar-pony { height: 120px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(232,131,175,0.3)); }
@@ -567,6 +569,8 @@
     /* 首页单屏适配 */
     .topbar { padding: 12px 0 4px 0; margin-bottom: 8px; border-radius: 16px; gap: 8px; }
     .home-topbar { gap: 12px; }
+    .home-topbar-time-row { gap: 4px; }
+    .home-topbar-rabbit { height: 26px; }
     .home-topbar-time { font-size: 24px; letter-spacing: 3px; }
     .home-topbar-date { font-size: 13px; }
     .home-topbar-pony { height: 72px; }
@@ -622,7 +626,10 @@
       <!-- 首页用：左对齐时间/日期/完成率 + 右侧小马图 -->
       <div class="home-topbar" id="homeTopbar">
         <div class="home-topbar-left">
-          <div class="home-topbar-time" id="curTime">--:--:--</div>
+          <div class="home-topbar-time-row">
+            <img class="home-topbar-rabbit" src="./rabbit.png" alt="rabbit" />
+            <div class="home-topbar-time" id="curTime">--:--:--</div>
+          </div>
           <div class="home-topbar-date" id="curDate">--</div>
         </div>
         <img class="home-topbar-pony" src="./pegasus-small.png" alt="pony" />
@@ -1578,7 +1585,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     document.querySelectorAll('.view').forEach(view=>view.classList.remove('active'));
     document.getElementById('view-'+v).classList.add('active');
     document.getElementById('viewTitle').textContent = VIEW_TITLES[v].t;
-    document.getElementById('viewSubtitle').textContent = VIEW_TITLES[v].s;
+    document.getElementById('viewSubtitle').textContent = '';
     // 首页显示 home-topbar（时间/日期/完成率+小马），其他板块显示 topbarTitle
     document.getElementById('homeTopbar').style.display = v === 'home' ? 'flex' : 'none';
     document.getElementById('topbarTitle').style.display = v === 'home' ? 'none' : 'block';
