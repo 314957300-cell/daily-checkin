@@ -741,7 +741,7 @@
         <div id="moneyList"></div>
       </div>
       <div class="money-shark">
-        <a href="sharkbill://" class="app-link-btn" target="_blank">🦈 打开鲨鱼记账 · 同步完整账单</a>
+        <a href="https://apps.apple.com/cn/search?term=%E9%B2%A8%E9%B1%BC%E8%AE%B0%E8%B4%A6" class="app-link-btn" onclick="return openAppLink(event,'鲨鱼记账')">🦈 打开鲨鱼记账 · 同步完整账单</a>
       </div>
     </div>
 
@@ -1119,7 +1119,7 @@ const MOM_DATA = [
         "听到金句可截图收藏，有空再回看"
       ],
       note:`今日主推${todayPodcast().label}类播客，点击下方按钮在小宇宙中搜索`,
-      app:{name:"小宇宙", scheme:"xiaoyuzhou://", icon:"🎧", desc:"听播客"}
+      app:{name:"小宇宙", url:"https://www.xiaoyuzhoufm.com/", icon:"🎧", desc:"听播客"}
     }
   },
   {
@@ -1780,6 +1780,22 @@ function renderMoney(){
         </div>
       `).join('')
     : `<div style="text-align:center;color:var(--text-light);padding:24px">今天还没有记录，记一笔吧 ✨</div>`;
+}
+
+/* App 链接跳转：iOS 直接走 https（App Store/通用链接可唤起），安卓尝试应用市场 */
+function openAppLink(ev, name){
+  const ua = navigator.userAgent;
+  const isAndroid = /Android/i.test(ua);
+  if (!isAndroid) return true; // iOS/桌面：默认 https 链接正常打开
+  // 安卓：尝试打开系统应用市场搜索，失败则回退到原链接
+  ev.preventDefault();
+  const fallback = ev.currentTarget.href;
+  let opened = false;
+  const onVis = () => { if (document.hidden) { opened = true; clearTimeout(t); } };
+  document.addEventListener('visibilitychange', onVis);
+  window.location.href = 'market://search?q=' + encodeURIComponent(name);
+  const t = setTimeout(() => { if (!opened) window.location.href = fallback; }, 1500);
+  return false;
 }
 
 /* ============ 工具 ============ */
