@@ -830,11 +830,12 @@ document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr(
 
 /* ============ 存储（本地 + GitHub API 云同步） ============ */
 // 用 GitHub Contents API 把每天打卡数据存为 data/YYYY-MM-DD.json
-// 无需注册新服务，复用现有 GitHub 仓库
+// 复用现有 GitHub 仓库，无需注册新服务
 const GH_TOKEN = atob('Z2hwX1EwNFZIdHY2ckpWdHlBeWtIMm1VM0NSeW1jdk0wWjM1SDgzWA==');
 const GH_OWNER = '314957300-cell';
 const GH_REPO  = 'daily-checkin';
 const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents`;
+const GH_RAW   = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main`;
 
 // UTF-8 安全的 base64 编解码
 function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
@@ -843,54 +844,62 @@ function b64dec(b64){ return decodeURIComponent(escape(atob(b64))); }
 function getStorageKey(){ return `checkin_${selectedDateKey}`; }
 function loadState(){ try{ return JSON.parse(localStorage.getItem(getStorageKey())) || {}; }catch(e){ return {}; } }
 
-let _cloudSha = null; // 记录云端文件的 sha，更新时需要
-let _syncTimer = null; // 防抖：连续操作只同步一次
+let _cloudSha = null;
+let _syncTimer = null;
 
 function saveState(s){
   localStorage.setItem(getStorageKey(), JSON.stringify(s));
-  // 防抖：2 秒内的连续操作合并为一次云端写入
+  // 防抖：1.5 秒内连续操作合并为一次云端写入
   clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(() => saveToCloud(s), 2000);
+  _syncTimer = setTimeout(() => saveToCloud(s), 1500);
 }
 
 let state = loadState();
 
-// 写入云端（PUT data/YYYY-MM-DD.json）
+// 写入云端：直接 PUT，失败再 GET sha 重试
 async function saveToCloud(s){
   const path = `data/${selectedDateKey}.json`;
+  const body = { message:`checkin ${selectedDateKey}`, content:b64enc(JSON.stringify(s)) };
+  if (_cloudSha) body.sha = _cloudSha;
   try{
-    // 先查 sha（文件是否已存在）
-    if (!_cloudSha) {
-      const r = await fetch(`${GH_API}/${path}`, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
-      if (r.ok) { const d = await r.json(); _cloudSha = d.sha; }
-    }
-    const res = await fetch(`${GH_API}/${path}`, {
+    let res = await fetch(`${GH_API}/${path}`, {
       method:'PUT',
       headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-      body: JSON.stringify({ message:`checkin ${selectedDateKey}`, content:b64enc(JSON.stringify(s)), sha:_cloudSha||undefined })
+      body: JSON.stringify(body)
     });
-    if (res.ok){ const d = await res.json(); _cloudSha = d.content.sha; }
-  }catch(e){ console.warn('GH save:', e); }
+    // 422 = 需要 sha（文件已存在但本地没有 sha）
+    if (res.status === 422 && !_cloudSha){
+      const gr = await fetch(`${GH_API}/${path}`, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
+      if (gr.ok){ const d = await gr.json(); _cloudSha = d.sha; body.sha = _cloudSha;
+        res = await fetch(`${GH_API}/${path}`, {
+          method:'PUT',
+          headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+          body: JSON.stringify(body)
+        });
+      }
+    }
+    if (res.ok){ const d = await res.json(); _cloudSha = d.content.sha; console.log('GH sync: saved'); }
+    else { console.warn('GH save failed:', res.status); }
+  }catch(e){ console.warn('GH save error:', e); }
 }
 
-// 从云端拉取（GET data/YYYY-MM-DD.json）
+// 从云端拉取：用 raw.githubusercontent.com（无需鉴权，无 CORS 问题）
 async function syncFromCloud(){
   const path = `data/${selectedDateKey}.json`;
   try{
-    const res = await fetch(`${GH_API}/${path}`, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
+    const res = await fetch(`${GH_RAW}/${path}`, { cache:'no-cache' });
     if (!res.ok){ return; } // 404 = 该日期无云端数据
-    const d = await res.json();
-    _cloudSha = d.sha;
-    const cloud = JSON.parse(b64dec(d.content));
+    const cloud = await res.json();
     if (JSON.stringify(cloud) !== JSON.stringify(state)){
       state = cloud;
       localStorage.setItem(getStorageKey(), JSON.stringify(state));
       refresh();
+      console.log('GH sync: pulled from cloud');
     }
-  }catch(e){ console.warn('GH sync:', e); }
+  }catch(e){ /* raw 读取失败静默处理 */ }
 }
 
-// 每 15 秒轮询云端，实现跨设备准实时同步
+// 每 15 秒轮询云端
 setInterval(syncFromCloud, 15000);
 syncFromCloud();
 
