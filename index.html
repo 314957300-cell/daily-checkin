@@ -856,30 +856,28 @@ function saveState(s){
 
 let state = loadState();
 
-// 写入云端：直接 PUT，失败再 GET sha 重试
+// 写入云端：先 GET 获取 sha，再 PUT
 async function saveToCloud(s){
   const path = `data/${selectedDateKey}.json`;
-  const body = { message:`checkin ${selectedDateKey}`, content:b64enc(JSON.stringify(s)) };
-  if (_cloudSha) body.sha = _cloudSha;
+  const url = `${GH_API}/${path}`;
+  const content = b64enc(JSON.stringify(s));
   try{
-    let res = await fetch(`${GH_API}/${path}`, {
+    // 1. GET 获取 sha（文件不存在则 sha=null）
+    let sha = null;
+    const gr = await fetch(url, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
+    if (gr.ok){ const gd = await gr.json(); sha = gd.sha; }
+    else if (gr.status !== 404){ console.warn('GH save: GET status', gr.status); }
+
+    // 2. PUT 写入
+    const body = { message:`checkin ${selectedDateKey}`, content };
+    if (sha) body.sha = sha;
+    const res = await fetch(url, {
       method:'PUT',
       headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
       body: JSON.stringify(body)
     });
-    // 422 = 需要 sha（文件已存在但本地没有 sha）
-    if (res.status === 422 && !_cloudSha){
-      const gr = await fetch(`${GH_API}/${path}`, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
-      if (gr.ok){ const d = await gr.json(); _cloudSha = d.sha; body.sha = _cloudSha;
-        res = await fetch(`${GH_API}/${path}`, {
-          method:'PUT',
-          headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-          body: JSON.stringify(body)
-        });
-      }
-    }
-    if (res.ok){ const d = await res.json(); _cloudSha = d.content.sha; console.log('GH sync: saved'); }
-    else { console.warn('GH save failed:', res.status); }
+    if (res.ok){ const d = await res.json(); _cloudSha = d.content.sha; console.log('GH sync: saved ✓'); }
+    else { console.warn('GH save: PUT failed', res.status, await res.text().substring(0,100)); }
   }catch(e){ console.warn('GH save error:', e); }
 }
 
