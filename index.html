@@ -882,14 +882,22 @@ async function saveToCloud(s){
 }
 
 // 从云端拉取：用 raw.githubusercontent.com（无需鉴权，无 CORS 问题）
+// 合并云端和本地数据，不覆盖本地已有的打卡
 async function syncFromCloud(){
   const path = `data/${selectedDateKey}.json`;
   try{
     const res = await fetch(`${GH_RAW}/${path}`, { cache:'no-cache' });
     if (!res.ok){ return; } // 404 = 该日期无云端数据
     const cloud = await res.json();
-    if (JSON.stringify(cloud) !== JSON.stringify(state)){
-      state = cloud;
+    // 合并：云端数据为主，本地补充云端没有的 key
+    let changed = false;
+    const merged = { ...cloud };
+    for (const k in state){
+      if (!(k in merged)){ merged[k] = state[k]; changed = true; }
+    }
+    // 如果云端有本地没有的数据，更新本地
+    if (JSON.stringify(merged) !== JSON.stringify(state)){
+      state = merged;
       localStorage.setItem(getStorageKey(), JSON.stringify(state));
       refresh();
       console.log('GH sync: pulled from cloud');
