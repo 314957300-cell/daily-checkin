@@ -296,7 +296,55 @@
   }
   .btn-mini:hover { background: var(--primary-light); border-color: var(--primary); }
 
-  /* topic card */
+  /* 备忘录 */
+  .memo-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,220,233,0.5));
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 18px; padding: 18px 22px;
+    box-shadow: var(--shadow); margin-bottom: 20px;
+  }
+  .memo-title { font-size: 15px; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
+  .memo-hint { font-size: 11px; font-weight: 400; color: var(--text-light); margin-left: 8px; }
+  .memo-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .memo-input {
+    flex: 1; border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px 14px; font-size: 14px; background: rgba(255,255,255,0.9);
+    color: var(--text); outline: none; transition: border-color 0.2s;
+  }
+  .memo-input:focus { border-color: var(--primary); }
+  .memo-date {
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px 10px; font-size: 13px; background: rgba(255,255,255,0.9);
+    color: var(--text); outline: none; min-width: 130px;
+  }
+  .memo-add-btn {
+    background: var(--primary); color: #fff; border: none;
+    border-radius: 12px; padding: 8px 18px; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .memo-add-btn:hover { background: var(--primary-dark); }
+  .memo-list { display: flex; flex-direction: column; gap: 8px; }
+  .memo-item {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.7); border-radius: 12px;
+    padding: 10px 14px; font-size: 14px; transition: all 0.2s;
+  }
+  .memo-item:hover { background: rgba(255,255,255,0.95); }
+  .memo-item .memo-text { flex: 1; color: var(--text); }
+  .memo-item .memo-date-tag {
+    font-size: 12px; color: var(--text-light); white-space: nowrap;
+    background: var(--bg-soft); padding: 3px 10px; border-radius: 8px;
+  }
+  .memo-item .memo-date-tag.urgent { background: #FFE0E0; color: #D94C4C; font-weight: 600; }
+  .memo-item .memo-date-tag.today { background: #FFF0C0; color: #C09000; font-weight: 600; }
+  .memo-item .memo-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-lighter); font-size: 18px; padding: 0 4px;
+    line-height: 1; transition: color 0.2s;
+  }
+  .memo-item .memo-del:hover { color: #D94C4C; }
+  .memo-empty { text-align: center; color: var(--text-lighter); font-size: 13px; padding: 10px; }
   .topic-card {
     background: linear-gradient(135deg, #FFF0F5, #FFDCE9);
     border-radius: 18px; padding: 28px;
@@ -623,6 +671,10 @@
     .quote-card { padding: 12px 16px; margin-bottom: 12px; font-size: 14px; border-radius: 16px; }
     .quote-card::before { font-size: 28px; }
     .quote-author { margin-top: 4px; }
+    .memo-card { padding: 12px 14px; margin-bottom: 12px; border-radius: 16px; }
+    .memo-input-row { flex-direction: column; gap: 8px; }
+    .memo-input { font-size: 13px; }
+    .memo-date { min-width: 0; }
     .footer-actions { margin-top: 12px; }
     .btn { padding: 8px 14px; font-size: 13px; }
   }
@@ -704,6 +756,17 @@
           <div class="cloth-title">👕 今日穿衣建议 <span style="float:right"><button class="btn-mini" onclick="changeCity()">📍 切换城市</button> <button class="btn-mini" onclick="renderWeather()">🔄</button></span></div>
           <div class="cloth-text" id="clothText">--</div>
         </div>
+      </div>
+
+      <!-- 备忘录 -->
+      <div class="memo-card">
+        <div class="memo-title">📝 备忘录 <span class="memo-hint">到日期自动提醒</span></div>
+        <div class="memo-input-row">
+          <input type="text" id="memoText" class="memo-input" placeholder="记下要做的事…" maxlength="100" />
+          <input type="date" id="memoDate" class="memo-date" />
+          <button class="memo-add-btn" onclick="addMemo()">添加</button>
+        </div>
+        <div id="memoList" class="memo-list"></div>
       </div>
     </div>
 
@@ -1470,7 +1533,127 @@ function refresh() {
   renderSummary();
   renderWeather();
   updateDateUI();
+  renderMemo();
 }
+
+/* ============ 备忘录 ============ */
+function getMemoKey(){ return 'memo_list'; }
+function loadMemo(){ try{ return JSON.parse(localStorage.getItem(getMemoKey())) || []; }catch(e){ return []; } }
+function saveMemo(list){
+  localStorage.setItem(getMemoKey(), JSON.stringify(list));
+  // 云同步
+  if (typeof GH_TOKEN !== 'undefined' && GH_TOKEN.length > 10) {
+    saveMemoCloud(list);
+  }
+}
+let memoList = loadMemo();
+
+function addMemo(){
+  const txt = document.getElementById('memoText').value.trim();
+  const dt  = document.getElementById('memoDate').value;
+  if (!txt){ return; }
+  memoList.push({ id: Date.now(), text: txt, date: dt || getTodayKey(), done: false });
+  memoList.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  saveMemo(memoList);
+  document.getElementById('memoText').value = '';
+  document.getElementById('memoDate').value = '';
+  renderMemo();
+}
+
+function delMemo(id){
+  memoList = memoList.filter(m => m.id !== id);
+  saveMemo(memoList);
+  renderMemo();
+}
+
+function toggleMemoDone(id){
+  const m = memoList.find(m => m.id === id);
+  if (m){ m.done = !m.done; saveMemo(memoList); renderMemo(); }
+}
+
+function renderMemo(){
+  const container = document.getElementById('memoList');
+  if (!container) return;
+  if (memoList.length === 0){
+    container.innerHTML = '<div class="memo-empty">暂无备忘 · 添加一条吧</div>';
+    return;
+  }
+  const today = getTodayKey();
+  container.innerHTML = memoList.map(m => {
+    const dt = m.date || '';
+    let cls = '';
+    let label = dt;
+    if (!m.done && dt < today){ cls = 'urgent'; label = '⚠️ ' + dt; }
+    else if (!m.done && dt === today){ cls = 'today'; label = '📌 今天'; }
+    else if (m.done){ label = '✅ ' + dt; }
+    return `<div class="memo-item" style="${m.done?'opacity:0.5;':''}">
+      <span class="memo-text" style="${m.done?'text-decoration:line-through;':''}">${m.text}</span>
+      <span class="memo-date-tag ${cls}">${label}</span>
+      <button class="memo-del" onclick="toggleMemoDone(${m.id})" title="标记完成/取消" style="font-size:14px;background:none;border:none;cursor:pointer;color:var(--text-lighter)">${m.done?'↩️':'✔'}</button>
+      <button class="memo-del" onclick="delMemo(${m.id})" title="删除">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// 到期提醒：打开页面时检测
+function checkMemoReminder(){
+  const today = getTodayKey();
+  const due = memoList.filter(m => !m.done && m.date <= today);
+  if (due.length === 0) return;
+  const todayList = due.filter(m => m.date === today);
+  const overdueList = due.filter(m => m.date < today);
+  let msg = '';
+  if (todayList.length){
+    msg += `📌 今天要做：\n${todayList.map(m=>'• '+m.text).join('\n')}\n\n`;
+  }
+  if (overdueList.length){
+    msg += `⚠️ 已过期未完成：\n${overdueList.map(m=>'• '+m.text+' ('+m.date+')').join('\n')}`;
+  }
+  setTimeout(() => {
+    if (msg) alert('📝 备忘录提醒\n\n' + msg);
+  }, 1500); // 进首页 1.5 秒后提醒
+}
+
+// GitHub 云同步备忘录
+async function saveMemoCloud(list){
+  const path = 'data/memo.json';
+  try{
+    const gr = await fetch(`${GH_API}/${path}`, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
+    let sha = null;
+    if (gr.ok){ const d = await gr.json(); sha = d.sha; }
+    const body = { message:'memo sync', content: b64enc(JSON.stringify(list)) };
+    if (sha) body.sha = sha;
+    await fetch(`${GH_API}/${path}`, {
+      method:'PUT',
+      headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+  }catch(e){ /* 静默 */ }
+}
+
+async function syncMemoCloud(){
+  try{
+    const res = await fetch(`${GH_RAW}/data/memo.json?t=${Date.now()}`, { cache:'no-cache' });
+    if (!res.ok) return;
+    const cloud = await res.json();
+    // 合并：以云端为主，本地补充
+    const cloudIds = new Set(cloud.map(m => m.id));
+    const localOnly = memoList.filter(m => !cloudIds.has(m.id));
+    const merged = [...cloud, ...localOnly].sort((a,b) => (a.date||'').localeCompare(b.date||''));
+    if (JSON.stringify(merged) !== JSON.stringify(memoList)){
+      memoList = merged;
+      localStorage.setItem(getMemoKey(), JSON.stringify(memoList));
+      renderMemo();
+    }
+  }catch(e){ /* 静默 */ }
+}
+
+// 页面加载后初始化
+document.addEventListener('DOMContentLoaded', () => {
+  renderMemo();
+  checkMemoReminder();
+  syncMemoCloud();
+});
 
 function updateStats() {
   const all = [...MOM_DATA, ...BABY_DATA].flatMap(c=>activeTasks(c));
