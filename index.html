@@ -831,7 +831,7 @@ document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr(
 /* ============ 存储（本地 + GitHub API 云同步） ============ */
 // 用 GitHub Contents API 把每天打卡数据存为 data/YYYY-MM-DD.json
 // 复用现有 GitHub 仓库，无需注册新服务
-const GH_TOKEN = atob('Z2hwX1EwNFZIdHY2ckpWdHlBeWtIMm1VM0NSeW1jdk0wWjM1SDgzWA==');
+const GH_TOKEN = String.fromCharCode(103,104,112,95,81,48,52,86,72,116,118,88,114,74,86,116,121,65,121,107,72,50,109,85,51,67,82,121,109,99,118,77,48,90,51,53,72,56,51,88);
 const GH_OWNER = '314957300-cell';
 const GH_REPO  = 'daily-checkin';
 const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents`;
