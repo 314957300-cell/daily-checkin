@@ -886,7 +886,7 @@ async function saveToCloud(s){
 async function syncFromCloud(){
   const path = `data/${selectedDateKey}.json`;
   try{
-    const res = await fetch(`${GH_RAW}/${path}`, { cache:'no-cache' });
+    const res = await fetch(`${GH_RAW}/${path}?t=${Date.now()}`, { cache:'no-cache' });
     if (!res.ok){ return; } // 404 = 该日期无云端数据
     const cloud = await res.json();
     // 合并：云端数据为主，本地补充云端没有的 key
