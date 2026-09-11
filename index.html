@@ -195,8 +195,9 @@
   .home-topbar-time { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: 5px; font-variant-numeric: tabular-nums; }
   .home-topbar-date { font-size: 16px; color: var(--text-light); font-weight: 500; }
   .home-topbar-pony { height: 120px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(232,131,175,0.3)); }
-  .topbar-left h2 { font-size: 22px; font-weight: 700; }
+  .topbar-left h2 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
   .topbar-left p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+  .view-title-icon { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
   .topbar-right { text-align: right; }
   .topbar-time { font-size: 22px; font-weight: 700; color: var(--primary-dark); font-variant-numeric: tabular-nums; }
   .topbar-weather { font-size: 13px; color: var(--text-light); }
@@ -718,6 +719,7 @@
     .nav-item.active .nav-icon img { filter: brightness(0) invert(1); }
     .sidebar-logo { font-size: 18px; margin-bottom: 10px; }
     .main { padding: 12px; background: url("./innerbg.jpg") repeat; }
+    .view-title-icon { width: 22px; height: 22px; border-radius: 5px; }
     .cover-greet { font-size: 26px; }
     .cover { padding: 36px 20px 24px; }
 
@@ -794,9 +796,9 @@
         </div>
         <img class="home-topbar-pony" src="./pegasus-small.png" alt="pony" loading="lazy" width="120" height="120" />
       </div>
-      <!-- 其他板块用：标题 -->
+      <!-- 其他板块用：标题（图标+文字） -->
       <div class="topbar-left" id="topbarTitle" style="display:none">
-        <h2 id="viewTitle"></h2>
+        <h2 id="viewTitle"><img class="view-title-icon" id="viewTitleIcon" src="" alt="" /><span id="viewTitleText"></span></h2>
         <p id="viewSubtitle"></p>
       </div>
     </div>
@@ -2178,12 +2180,12 @@ function renderMeal() {
 
 /* ============ 导航 ============ */
 const VIEW_TITLES = {
-  home:{t:"去拥抱更大的世界 🏠", s:""},
-  mom:{t:"🎀 摇一摇打卡", s:"爱自己，才能更好地爱家人"},
-  baby:{t:"💛 小哎呦启蒙打卡", s:"慢慢来，比较快"},
-  topic:{t:"💬 每日话题", s:"餐桌上的亲子时光"},
-  meal:{t:"🍽️ 健康饮食", s:"好好吃饭，是最实在的爱"},
-  week:{t:"📊 复盘", s:"看见坚持的力量"}
+  home:{t:"去拥抱更大的世界 🏠", icon:"", s:""},
+  mom:{t:"摇一摇打卡", icon:"./nav-mom.png", s:"爱自己，才能更好地爱家人"},
+  baby:{t:"小哎呦启蒙打卡", icon:"./nav-baby.png", s:"慢慢来，比较快"},
+  topic:{t:"每日话题", icon:"./nav-topic.png", s:"餐桌上的亲子时光"},
+  meal:{t:"健康饮食", icon:"./nav-meal.png", s:"好好吃饭，是最实在的爱"},
+  week:{t:"复盘", icon:"./nav-review.png", s:"看见坚持的力量"}
 };
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -2192,7 +2194,14 @@ document.querySelectorAll('.nav-item').forEach(item => {
     const v = item.dataset.view;
     document.querySelectorAll('.view').forEach(view=>view.classList.remove('active'));
     document.getElementById('view-'+v).classList.add('active');
-    document.getElementById('viewTitle').textContent = VIEW_TITLES[v].t;
+    document.getElementById('viewTitleText').textContent = VIEW_TITLES[v].t;
+    const titleIcon = document.getElementById('viewTitleIcon');
+    if (VIEW_TITLES[v].icon){
+      titleIcon.src = VIEW_TITLES[v].icon;
+      titleIcon.style.display = '';
+    } else {
+      titleIcon.style.display = 'none';
+    }
     document.getElementById('viewSubtitle').style.display = 'none';
     // 首页显示 home-topbar（时间/日期/完成率+小马），其他板块显示 topbarTitle
     document.getElementById('homeTopbar').style.display = v === 'home' ? 'flex' : 'none';
