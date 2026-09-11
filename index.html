@@ -197,7 +197,7 @@
   .home-topbar-pony { height: 120px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(232,131,175,0.3)); }
   .topbar-left h2 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
   .topbar-left p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
-  .view-title-icon { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
+  .view-title-icon { width: 32px; height: 32px; object-fit: contain; border-radius: 7px; }
   .topbar-right { text-align: right; }
   .topbar-time { font-size: 22px; font-weight: 700; color: var(--primary-dark); font-variant-numeric: tabular-nums; }
   .topbar-weather { font-size: 13px; color: var(--text-light); }
@@ -719,7 +719,7 @@
     .nav-item.active .nav-icon img { filter: brightness(0) invert(1); }
     .sidebar-logo { font-size: 18px; margin-bottom: 10px; }
     .main { padding: 12px; background: url("./innerbg.jpg") repeat; }
-    .view-title-icon { width: 22px; height: 22px; border-radius: 5px; }
+    .view-title-icon { width: 26px; height: 26px; border-radius: 6px; }
     .cover-greet { font-size: 26px; }
     .cover { padding: 36px 20px 24px; }
 
@@ -850,6 +850,7 @@
       <div class="memo-input-row">
         <input type="text" id="memoText" class="memo-input" placeholder="记下要做的事…" maxlength="100" />
         <input type="date" id="memoDate" class="memo-date" />
+        <input type="time" id="memoTime" class="memo-date" style="min-width:0;width:90px" />
         <button class="memo-add-btn" onclick="addMemo()">添加</button>
       </div>
       <div id="memoList" class="memo-list"></div>
@@ -1722,12 +1723,17 @@ let memoList = loadMemo();
 function addMemo(){
   const txt = document.getElementById('memoText').value.trim();
   const dt  = document.getElementById('memoDate').value;
+  const tm  = document.getElementById('memoTime').value;
   if (!txt){ return; }
-  memoList.push({ id: Date.now(), text: txt, date: dt || getTodayKey(), done: false });
-  memoList.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  memoList.push({ id: Date.now(), text: txt, date: dt || getTodayKey(), time: tm || '', done: false });
+  memoList.sort((a,b) => {
+    const k = m => (m.date||'') + (m.time||'');
+    return k(a).localeCompare(k(b));
+  });
   saveMemo(memoList);
   document.getElementById('memoText').value = '';
   document.getElementById('memoDate').value = '';
+  document.getElementById('memoTime').value = '';
   renderMemo();
 }
 
@@ -1768,9 +1774,10 @@ function renderMemo(){
     const dt = m.date || '';
     let cls = '';
     let label = dt;
-    if (!m.done && dt < today){ cls = 'urgent'; label = '⚠️ ' + dt; }
-    else if (!m.done && dt === today){ cls = 'today'; label = '📌 今天'; }
-    else if (m.done){ label = '✅ ' + dt; }
+    if (m.time){ label += ' ' + m.time; }
+    if (!m.done && dt < today){ cls = 'urgent'; label = '⚠️ ' + dt + (m.time?' '+m.time:''); }
+    else if (!m.done && dt === today){ cls = 'today'; label = '📌 今天' + (m.time?' '+m.time:''); }
+    else if (m.done){ label = '✅ ' + dt + (m.time?' '+m.time:''); }
     return `<div class="memo-item${m.done?' done':''}">
       <span class="memo-text">${m.text}</span>
       <span class="memo-date-tag ${cls}">${label}</span>
@@ -1788,16 +1795,25 @@ function toggleMemoPanel(){
 // 到期提醒：打开页面时检测
 function checkMemoReminder(){
   const today = getTodayKey();
-  const due = memoList.filter(m => !m.done && m.date <= today);
+  const now = new Date();
+  const nowHM = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  const due = memoList.filter(m => {
+    if (m.done) return false;
+    if (m.date > today) return false; // 未来日期不提醒
+    if (m.date < today) return true; // 过期未完成
+    // 今天：如果有时间，检查是否已到；没时间则全天提醒
+    if (!m.time) return true;
+    return m.time <= nowHM;
+  });
   if (due.length === 0) return;
   const todayList = due.filter(m => m.date === today);
   const overdueList = due.filter(m => m.date < today);
   let msg = '';
   if (todayList.length){
-    msg += `📌 今天要做：\n${todayList.map(m=>'• '+m.text).join('\n')}\n\n`;
+    msg += `📌 今天要做：\n${todayList.map(m=>'• '+m.text+(m.time?' ('+m.time+')':'')).join('\n')}\n\n`;
   }
   if (overdueList.length){
-    msg += `⚠️ 已过期未完成：\n${overdueList.map(m=>'• '+m.text+' ('+m.date+')').join('\n')}`;
+    msg += `⚠️ 已过期未完成：\n${overdueList.map(m=>'• '+m.text+' ('+m.date+(m.time?' '+m.time:'')+')').join('\n')}`;
   }
   setTimeout(() => {
     if (msg) alert('📝 备忘录提醒\n\n' + msg);
