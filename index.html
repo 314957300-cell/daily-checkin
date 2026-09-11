@@ -1082,40 +1082,92 @@ document.getElementById('quoteText').textContent = q.cn;
 document.getElementById('quoteEn').textContent = q.en;
 document.getElementById('quoteAuthor').textContent = "— " + q.a;
 
-/* 每日一言语音朗读（Web Speech API，中文优先） */
+/* 每日一言语音朗读（Web Speech API） */
+// 缓存语音列表（部分浏览器异步加载）
+let _ttsVoices = [];
+function _refreshVoices(){
+  if (!window.speechSynthesis) return;
+  _ttsVoices = window.speechSynthesis.getVoices() || [];
+}
+if (window.speechSynthesis){
+  _refreshVoices();
+  window.speechSynthesis.onvoiceschanged = _refreshVoices;
+}
+// 已知高质量英文/中文语音名（优先选用，避免选到低质量或未下载完成的语音）
+const _EN_PRIORITY = ['Samantha','Google US English','Alex','Microsoft Zira','Microsoft Aria','Daniel','Serena','Karen','Google UK English Female','Aaron','Arthur'];
+const _ZH_PRIORITY = ['Tingting','Google 普通话（中国大陆）','Google Mandarin','Mei-Jia','Sinji','Microsoft Xiaoxiao','Microsoft Huihui'];
+
+function _pickVoice(prefix, priorityList){
+  const list = _ttsVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
+  if (list.length === 0) return null;
+  // 1. 优先名单中的本地语音
+  for (const name of priorityList){
+    const hit = list.find(v => v.name === name);
+    if (hit) return hit;
+  }
+  // 2. 本地已下载语音（在线语音在国内常加载失败 → 杂音）
+  const local = list.find(v => v.localService);
+  if (local) return local;
+  // 3. 精确语言匹配的任意语音
+  return list.find(v => v.lang.toLowerCase() === (prefix === 'en' ? 'en-us' : 'zh-cn')) || list[0];
+}
+
+let _ttsToken = 0; // 防止快速点击导致回调错乱
 function speakQuote(){
   const btn = document.getElementById('quoteSpeaker');
   const synth = window.speechSynthesis;
   if (!synth) { alert('当前浏览器不支持语音朗读'); return; }
-  // 再次点击 = 停止
-  if (synth.speaking || synth.pending) {
+
+  // 正在朗读时再次点击 = 停止
+  if (synth.speaking || synth.pending){
     synth.cancel();
+    _ttsToken++;
     btn.classList.remove('playing');
     btn.textContent = '🔊';
     return;
   }
+
+  _refreshVoices(); // 点击时再取一次，确保语音已加载
   const quote = pickQuote();
-  const reset = () => { btn.classList.remove('playing'); btn.textContent = '🔊'; };
-  const pickVoice = (lang) => synth.getVoices().find(v => v.lang === lang)
-    || synth.getVoices().find(v => v.lang && v.lang.startsWith(lang.split('-')[0]));
+  const token = ++_ttsToken;
+  const reset = () => {
+    if (token !== _ttsToken) return;
+    btn.classList.remove('playing');
+    btn.textContent = '🔊';
+  };
+
+  synth.cancel(); // 清空残留队列，避免叠音
+  const zhVoice = _pickVoice('zh', _ZH_PRIORITY);
+  // 严格筛选：只有找到真正的英文语音才读英文，否则跳过（中文引擎读英文会有杂音）
+  const enVoice = quote.en ? _pickVoice('en', _EN_PRIORITY) : null;
+
   const u1 = new SpeechSynthesisUtterance(quote.cn);
-  u1.lang = 'zh-CN'; u1.rate = 0.92;
-  const zh = pickVoice('zh-CN'); if (zh) u1.voice = zh;
-  u1.onend = () => { if (!quote.en) reset(); };
-  u1.onerror = reset;
-  synth.speak(u1);
-  if (quote.en){
-    const u2 = new SpeechSynthesisUtterance(quote.en);
-    u2.lang = 'en-US'; u2.rate = 0.9;
-    const en = pickVoice('en-US'); if (en) u2.voice = en;
-    u2.onend = reset; u2.onerror = reset;
-    synth.speak(u2);
+  u1.lang = 'zh-CN'; u1.rate = 0.92; u1.volume = 1;
+  if (zhVoice) u1.voice = zhVoice;
+
+  if (enVoice){
+    // iOS 队列 bug：第二个 utterance 需在 onend 里延迟入队，否则会重叠/吞音
+    u1.onend = () => {
+      if (token !== _ttsToken) return;
+      setTimeout(() => {
+        if (token !== _ttsToken) return;
+        const u2 = new SpeechSynthesisUtterance(quote.en);
+        u2.lang = enVoice.lang; u2.rate = 0.88; u2.volume = 1;
+        u2.voice = enVoice;
+        u2.onend = reset;
+        u2.onerror = reset;
+        synth.speak(u2);
+      }, 250);
+    };
+  } else {
+    u1.onend = reset;
   }
+  u1.onerror = reset;
+
+  synth.speak(u1);
   btn.classList.add('playing');
   btn.textContent = '⏸';
 }
-// 部分浏览器语音列表异步加载，提前触发
-if (window.speechSynthesis) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
 
 /* ============ 每日话题（家庭/亲子讨论） ============ */
 const DAILY_TOPICS = [
