@@ -1093,24 +1093,32 @@ if (window.speechSynthesis){
   _refreshVoices();
   window.speechSynthesis.onvoiceschanged = _refreshVoices;
 }
-// 已知高质量英文/中文语音名（优先选用，避免选到低质量或未下载完成的语音）
-const _EN_PRIORITY = ['Samantha','Google US English','Alex','Microsoft Zira','Microsoft Aria','Daniel','Serena','Karen','Google UK English Female','Aaron','Arthur'];
-const _ZH_PRIORITY = ['Tingting','Google 普通话（中国大陆）','Google Mandarin','Mei-Jia','Sinji','Microsoft Xiaoxiao','Microsoft Huihui'];
+// 标准朗读音白名单（系统里还存在大量搞怪音效音如 Boing/Bells/Bad News，必须避开）
+const _EN_PRIORITY = ['Samantha','Google US English','Alex','Microsoft Zira','Microsoft Aria','Microsoft Jenny','Daniel','Serena','Karen','Google UK English Female','Aaron','Arthur','Moira','Fiona'];
+const _ZH_PRIORITY = ['Tingting','Google 普通话（中国大陆）','Google Mandarin (普通话中国)','Mei-Jia','Sinji','Microsoft Xiaoxiao','Microsoft Huihui','Microsoft Yaoyao'];
+// macOS/iOS 搞怪音效语音黑名单（选中会出现机器人音/杂音）
+const _NOVELTY_VOICES = ['Albert','Bad News','Bahh','Bells','Boing','Bubbles','Cellos','Good News','Jester','Organ','Princess','Ralph','Superstar','Trinoids','Whisper','Wobble','Zarvox','Fred','Kathy','Junior','Ralph','Eddy','Anna','Shelley'];
 
 function _pickVoice(prefix, priorityList){
-  const list = _ttsVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith(prefix));
-  if (list.length === 0) return null;
-  // 1. 优先名单中的本地语音
+  const list = _ttsVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith(prefix)
+    && !_NOVELTY_VOICES.includes(v.name));
+  if (list.length === 0) return null; // 没有标准音 → 跳过，绝不用搞怪音硬读
+  // 1. 优先白名单
   for (const name of priorityList){
     const hit = list.find(v => v.name === name);
     if (hit) return hit;
   }
-  // 2. 本地已下载语音（在线语音在国内常加载失败 → 杂音）
+  // 2. 本地已下载的标准音（在线音在国内常加载失败 → 杂音）
   const local = list.find(v => v.localService);
   if (local) return local;
-  // 3. 精确语言匹配的任意语音
-  return list.find(v => v.lang.toLowerCase() === (prefix === 'en' ? 'en-us' : 'zh-cn')) || list[0];
+  // 3. 任意标准音
+  return list[0];
 }
+// 挂到全局，确保 onclick 与控制台都能访问
+window._pickVoice = _pickVoice;
+window._refreshVoices = _refreshVoices;
+window._EN_PRIORITY = _EN_PRIORITY;
+window._ZH_PRIORITY = _ZH_PRIORITY;
 
 let _ttsToken = 0; // 防止快速点击导致回调错乱
 function speakQuote(){
