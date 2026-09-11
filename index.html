@@ -271,6 +271,17 @@
   .quote-card span { padding-left: 30px; display: block; }
   .quote-author { text-align: right; color: var(--text-light); font-size: 13px; margin-top: 8px; }
   .quote-en { font-size: 13px; color: var(--text-light); font-style: italic; padding-left: 30px; margin-top: 4px; line-height: 1.5; }
+  .quote-speaker {
+    position: absolute; top: 12px; right: 14px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    font-size: 15px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; padding: 0;
+  }
+  .quote-speaker:hover { background: var(--primary-light); transform: scale(1.08); }
+  .quote-speaker.playing { background: var(--primary); border-color: var(--primary); animation: speakerPulse 1.2s ease-in-out infinite; }
+  @keyframes speakerPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(232,131,175,0.5);} 50%{ box-shadow:0 0 0 6px rgba(232,131,175,0);} }
 
   /* weather card */
   .weather-card {
@@ -764,6 +775,7 @@
         <span id="quoteText">慢慢来，比较快。</span>
         <div class="quote-en" id="quoteEn"></div>
         <div class="quote-author" id="quoteAuthor">— 佚名</div>
+        <button class="quote-speaker" id="quoteSpeaker" onclick="speakQuote()" title="点我朗读">🔊</button>
       </div>
 
       <div class="home-grid">
@@ -1070,6 +1082,41 @@ document.getElementById('quoteText').textContent = q.cn;
 document.getElementById('quoteEn').textContent = q.en;
 document.getElementById('quoteAuthor').textContent = "— " + q.a;
 
+/* 每日一言语音朗读（Web Speech API，中文优先） */
+function speakQuote(){
+  const btn = document.getElementById('quoteSpeaker');
+  const synth = window.speechSynthesis;
+  if (!synth) { alert('当前浏览器不支持语音朗读'); return; }
+  // 再次点击 = 停止
+  if (synth.speaking || synth.pending) {
+    synth.cancel();
+    btn.classList.remove('playing');
+    btn.textContent = '🔊';
+    return;
+  }
+  const quote = pickQuote();
+  const reset = () => { btn.classList.remove('playing'); btn.textContent = '🔊'; };
+  const pickVoice = (lang) => synth.getVoices().find(v => v.lang === lang)
+    || synth.getVoices().find(v => v.lang && v.lang.startsWith(lang.split('-')[0]));
+  const u1 = new SpeechSynthesisUtterance(quote.cn);
+  u1.lang = 'zh-CN'; u1.rate = 0.92;
+  const zh = pickVoice('zh-CN'); if (zh) u1.voice = zh;
+  u1.onend = () => { if (!quote.en) reset(); };
+  u1.onerror = reset;
+  synth.speak(u1);
+  if (quote.en){
+    const u2 = new SpeechSynthesisUtterance(quote.en);
+    u2.lang = 'en-US'; u2.rate = 0.9;
+    const en = pickVoice('en-US'); if (en) u2.voice = en;
+    u2.onend = reset; u2.onerror = reset;
+    synth.speak(u2);
+  }
+  btn.classList.add('playing');
+  btn.textContent = '⏸';
+}
+// 部分浏览器语音列表异步加载，提前触发
+if (window.speechSynthesis) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
+
 /* ============ 每日话题（家庭/亲子讨论） ============ */
 const DAILY_TOPICS = [
   {title:"如果可以养一种动物，你想养什么？为什么？", cat:"亲子", tip:"引导孩子说出理由，锻炼表达与因果思维"},
@@ -1088,23 +1135,6 @@ const DAILY_TOPICS = [
   {title:"为什么有的人会说不同的语言？", cat:"文化", tip:"聊世界、国家、文化差异，培养开放心态"},
   {title:"你觉得什么是真正的朋友？", cat:"社交", tip:"聊真诚、分享、互助，建立健康交友观"}
 ];
-
-/* ============ Wow English 每日规划 ============ */
-const WOW_ENGLISH_PLAN = [
-  {ep:"Blue 1 - Hello!", focus:"问候语 Hello/Hi/Goodbye，句型 I'm...", task:"看1遍+跟读3句+和孩子角色扮演问候"},
-  {ep:"Blue 2 - What's your name?", focus:"询问姓名 What's your name? I'm...", task:"看1遍+互相问名字+画名字卡片"},
-  {ep:"Blue 3 - How are you?", focus:"问候身体 How are you? I'm fine/happy/sad", task:"看1遍+用情绪表情卡问答"},
-  {ep:"Blue 4 - Numbers 1-10", focus:"数字1-10", task:"看1遍+数家里物品1-10"},
-  {ep:"Blue 5 - Colors", focus:"颜色 red/blue/yellow/green", task:"看1遍+在家找对应颜色物品"},
-  {ep:"Blue 6 - Family", focus:"家庭成员 mother/father/brother/sister", task:"看1遍+介绍自己的家人"},
-  {ep:"Blue 7 - Body", focus:"身体部位 head/eyes/nose/mouth", task:"看1遍+Touch your...游戏"},
-  {ep:"Blue 8 - Food", focus:"食物 apple/banana/bread/milk", task:"看1遍+用英语说三餐食物"},
-  {ep:"Blue 9 - Animals", focus:"动物 cat/dog/bird/fish", task:"看1遍+模仿动物叫声说英语"},
-  {ep:"Blue 10 - Weather", focus:"天气 sunny/rainy/cloudy", task:"看1遍+每天用英语说天气"}
-];
-function todayWow() {
-  return WOW_ENGLISH_PLAN[dayOfYear() % WOW_ENGLISH_PLAN.length];
-}
 
 /* ============ 健康饮食计划（周1-5晚餐 / 周6-7三餐） ============ */
 const MEAL_PLAN = {
@@ -1147,6 +1177,14 @@ const XHS_TIPS = [
   "每日刷同赛道爆款，拆解标题与首图结构"
 ];
 const XHS_BENCHMARK = "对标账号：@租房改造小能手（搜索流量打法）、@小居研究所（1㎡空间改造系列）、@西柚与婷婷（低成本改造）";
+const XHS_HOTSPOTS = [
+  "搜「家居/收纳」下拉框联想词，记录 3 个上升关键词",
+  "刷小红书热搜榜，找能与家居场景结合的话题",
+  "翻同赛道近 3 天爆款（点赞>1000），记录标题首图共性",
+  "看节气/节假日节点，提前 3 天布局应景内容",
+  "在评论区收集粉丝提问，转化成选题",
+  "关注平台「灵感中心」官方热词，蹭垂直热点"
+];
 
 const DY_TOPICS = [
   "全职妈妈如何重新找回自我",
@@ -1173,6 +1211,14 @@ const DY_TIPS = [
   "统一片头片尾，强化人设记忆点"
 ];
 const DY_BENCHMARK = "对标账号：@刘安娜Plus（女性成长+商业思维）、@冰姐扒书（读书成长）、陪读妈妈真实记录类账号";
+const DY_HOTSPOTS = [
+  "看抖音热榜+巨量算数，记录女性/育儿类上升话题",
+  "刷同赛道近 3 天爆款（点赞>1万），拆解前 3 秒钩子",
+  "跟拍一个平台热门 BGM/模板，套女性成长主题",
+  "看节气/节日/开学季节点，提前布局应景内容",
+  "从自己评论区高赞留言里找下一条选题",
+  "关注宝妈/情感类话题挑战，带话题标签发布"
+];
 
 const MATH_GAMES = [
   "吃饭前数碗筷/水果，建立数与量对应",
@@ -1209,36 +1255,22 @@ const PINYIN_GAMES = [
   "听音找卡：家长读，孩子找对应拼音"
 ];
 
-/* 科普听读主粮：科学队长（北大/清华等科学家主讲，24档×52期体系化音频，
-   覆盖生命科学/物质科学/宇宙与地球/技术与工程四大学科，3-9岁，喜马拉雅/微信公众号可听） */
-const SCIENCE_SERIES = [
-  {field:"生命科学", name:"科学家讲给孩子的生命科学·植物篇", topic:"认识花草树木，种子怎么发芽、植物怎么吃饭"},
-  {field:"生命科学", name:"科学家讲给孩子的生命科学·动物篇", topic:"身边的小动物和昆虫，它们怎样生活长大"},
-  {field:"生命科学", name:"科学家讲给孩子的人体课", topic:"认识自己的身体：心跳、消化、大脑和五感"},
-  {field:"生命科学", name:"古生物学家讲恐龙与远古生命", topic:"恐龙时代、化石和生命演化的故事"},
-  {field:"物质科学", name:"物理学家讲看不见的力", topic:"重力、浮力、摩擦力——生活里的物理现象"},
-  {field:"物质科学", name:"物理学家讲光与声音", topic:"影子、彩虹、回声是怎么来的"},
-  {field:"物质科学", name:"化学家讲物质的变化", topic:"厨房和浴室里的化学小魔术（盐、糖、醋、油）"},
-  {field:"宇宙与地球", name:"天文学家讲宇宙", topic:"太阳、月亮、星星和白天黑夜"},
-  {field:"宇宙与地球", name:"地球科学家讲我们的星球", topic:"山川海洋、天气四季和地震火山"},
-  {field:"技术与工程", name:"工程师讲交通工具", topic:"汽车、火车、飞机为什么能动起来"},
-  {field:"技术与工程", name:"工程师讲身边的科技", topic:"电、网络、机器人怎样为我们工作"},
-  {field:"综合启蒙", name:"音频版《十万个为什么》", topic:"每天一个为什么，保护并满足好奇心"}
+/* B站免费科普启蒙主粮（4岁+，全部 B 站可看的正版/合集资源） */
+const BILIBILI_SCIENCE = [
+  {name:"螺丝钉（The Fixies）", kw:"螺丝钉 动画片", topic:"俄罗斯科普动画，讲灯泡、冰箱、电话等家电背后的科学原理"},
+  {name:"像乌鸦一样思考", kw:"像乌鸦一样思考", topic:"日本NHK科学思维启蒙神片，教孩子观察→假设→验证"},
+  {name:"海底小纵队", kw:"海底小纵队", topic:"每集认识一种海洋生物，海洋科普+团队合作"},
+  {name:"平博士密码", kw:"平博士密码", topic:"诺贝尔奖科普动画，物理化学与宇宙常识轻松讲"},
+  {name:"恐龙列车", kw:"恐龙列车 中文版", topic:"吉姆·汉森出品，跟着小恐龙穿越时空认识古生物"},
+  {name:"啊！设计", kw:"啊设计 NHK", topic:"NHK儿童设计思维启蒙，观察生活中物品为什么这样设计"},
+  {name:"科学小子西德", kw:"科学小子西德", topic:"美国STEM启蒙动画，每个科学现象用一首歌讲明白"},
+  {name:"趣趣知知鸟", kw:"趣趣知知鸟", topic:"BBC低幼科普，认识上下、里外、冷热等基础概念"},
+  {name:"动物科普纪录片合集", kw:"儿童动物科普纪录片", topic:"认识真实动物的生活习性，选10分钟片段观看"},
+  {name:"宇宙星球科普合集", kw:"儿童宇宙科普", topic:"太阳、月亮、星星和太阳系，满足太空好奇心"},
+  {name:"人体科普动画合集", kw:"儿童人体科普动画", topic:"认识身体：心跳、消化、骨骼和五感怎么工作"},
+  {name:"自然现象科普合集", kw:"儿童自然现象科普", topic:"彩虹、闪电、四季、火山是怎么来的"}
 ];
-/* 科普思维小游戏（观察/分类/因果/假设验证） */
-const SCIENCE_GAMES = [
-  "分类小达人：把家里物品按颜色/材质/用途分成几堆",
-  "沉浮实验：把小物件放进水盆，先猜再看哪些沉哪些浮",
-  "影子追踪：上午和下午观察同一物体影子的长短方向",
-  "种豆观察：种一颗豆子，每天画下它的变化",
-  "磁铁寻宝：用磁铁找出家里能被吸住的东西",
-  "天气记录：连续一周画下晴雨云和温度",
-  "放大镜侦探：用放大镜观察树叶纹路、指纹、小虫子",
-  "小小建筑师：用纸杯/积木搭一座不塌的桥，比比谁承重多",
-  "因果猜猜看：为什么冰会化？为什么天会黑？先猜答案再查证",
-  "感官盲盒：蒙眼摸/闻/尝，说出是什么物品"
-];
-function todayScience(){ return SCIENCE_SERIES[dayOfYear() % SCIENCE_SERIES.length]; }
+function todayScience(){ return BILIBILI_SCIENCE[dayOfYear() % BILIBILI_SCIENCE.length]; }
 
 /* 居家跟练视频建议（苹果型/悬垂腹/膝盖友好） */
 const WORKOUTS = [
@@ -1336,16 +1368,19 @@ const MOM_DATA = [
   {
     name:"英语学习", icon:"📚", color:"#FFB8D1",
     tasks:[
-      {id:"m5", text:"多邻国打卡 1 关", tag:"英语"},
-      {id:"m5b", text:"Wow English 自学 1 集", tag:"英语"}
+      {id:"m5", text:"多邻国打卡 1 关", tag:"英语"}
     ],
     suggestion:{
       topics:[
-        "今日 Wow English：" + todayWow().ep,
-        "重点句型：" + todayWow().focus,
-        "跟练任务：" + todayWow().task
+        "多邻国连续打卡，保持每天 1 关不断更",
+        "错题当天复习，错句跟读 3 遍直到顺口",
+        "可和孩子的英语启蒙同步进行，妈妈先学再亲子互动"
       ],
-      note:"先完整看1遍理解，再跟读重点句型，最后用英语和孩子互动。同一集可重复2-3天直至掌握。",
+      tips:[
+        "利用通勤/午休碎片时间完成，5 分钟即可",
+        "开启 App 通知提醒，固定时段打卡养成习惯"
+      ],
+      note:"每天 1 关保持语感，重点在坚持不断更，周末可补做漏卡。",
       app:{name:"多邻国", url:"https://apps.apple.com/cn/app/id570060128", icon:"🦉", desc:"打开多邻国打卡"}
     }
   },
@@ -1370,12 +1405,13 @@ const MOM_DATA = [
   {
     name:"小红书运营", icon:"📕", color:"#F6BFDA",
     tasks:[
-      {id:"m7", text:"选题构思 / 素材收集", tag:"计划"},
-      {id:"m8", text:"内容创作或发布 1 条", tag:"执行"},
-      {id:"m9", text:"互动回复评论", tag:"互动"}
+      {id:"m7", text:"运营打卡（选题计划 / 创作发布 / 评论互动）", tag:"运营"}
     ],
     suggestion:{
-      topics: pick(XHS_TOPICS, 4, 1),
+      topics:[
+        "🔥 今日热点抓取：" + pick(XHS_HOTSPOTS,1,2)[0],
+        ...pick(XHS_TOPICS, 3, 1)
+      ],
       tips: pick(XHS_TIPS, 2, 5),
       note:`【账号分析】928184780｜家居号 105粉。定位建议：主打「小户型/带娃家庭低成本改造」差异化，用搜索关键词（收纳+不打孔+平价）布局标题首图。${XHS_BENCHMARK}`
     }
@@ -1383,12 +1419,13 @@ const MOM_DATA = [
   {
     name:"抖音运营", icon:"🎵", color:"#FFB8D1",
     tasks:[
-      {id:"m10", text:"选题 / 脚本构思", tag:"计划"},
-      {id:"m11", text:"拍摄或剪辑 1 条", tag:"执行"},
-      {id:"m12", text:"互动回复 / 数据复盘", tag:"互动"}
+      {id:"m10", text:"运营打卡（选题脚本 / 拍摄剪辑 / 互动复盘）", tag:"运营"}
     ],
     suggestion:{
-      topics: pick(DY_TOPICS, 4, 2),
+      topics:[
+        "🔥 今日热点抓取：" + pick(DY_HOTSPOTS,1,3)[0],
+        ...pick(DY_TOPICS, 3, 2)
+      ],
       tips: pick(DY_TIPS, 2, 7),
       note:`【账号分析】54253694621｜女性成长 0粉，2条视频1万播1千赞。完播率好但粉丝转化低，建议强化人设标签（如「全职妈妈的逆袭日记」），固定系列化内容提升追更率。${DY_BENCHMARK}`
     }
@@ -1403,25 +1440,25 @@ const BABY_DATA = [
     tasks:[
       {id:"b1", text:"上学路上听力输入 10-15min", tag:"早"},
       {id:"b2", text:"叽里呱啦 Y1 学习", tag:"APP"},
-      {id:"b2b", text:"Wow English 看 1 集", tag:"视频"},
+      {id:"b2b", text:"看一集小鼠波波英语动画片", tag:"视频"},
       {id:"b3", text:"牛津树校园版 1-2 本", tag:"兴趣"},
       {id:"b4", text:"RAZ aa-c 3-5 本", tag:"分级"}
     ],
     suggestion:{
       topics:[
-        "今日 Wow English：" + todayWow().ep + "（" + todayWow().focus + "）",
-        "互动：" + todayWow().task,
+        "今日动画：《小鼠波波 Maisy Mouse》1 集，生活化场景英语启蒙",
+        "互动：看完和孩子角色扮演动画里的日常情节（逛超市/去公园/过生日）",
         "RAZ 三步法：听原音→跟读→做quiz，正确率≥80%再升级",
         "牛津树：家长指读+孩子跟读，Kipper故事激发兴趣"
       ],
-      note:"Wow English 真人TPR语速慢，适合启蒙主粮；同一集看3天换新，配合亲子互动效果最佳。"
+      note:"小鼠波波是低幼英语启蒙经典动画，语速慢、句子短、全是贴近生活的日常场景；同一集可连看 2-3 天再换新，配合亲子角色扮演效果最佳。"
     }
   },
   {
     name:"识字阅读", icon:"📖", color:"#F6BFDA",
     tasks:[
       {id:"b5", text:"识字复习 / 新字 5-8 个", tag:"识字"},
-      {id:"b6", text:"分级读物共读（小羊上山/阅读树）", tag:"阅读"}
+      {id:"b6", text:"分级读物共读", tag:"阅读"}
     ]
   },
   {
@@ -1458,17 +1495,16 @@ const BABY_DATA = [
   {
     name:"科普思维", icon:"🔬", color:"#F6BFDA",
     tasks:[
-      {id:"b12", text:"科普听读（科学队长 1集/约10分钟）", tag:"输入"},
-      {id:"b13", text:"思维 / 逻辑小游戏", tag:"游戏"}
+      {id:"b12", text:"看 1 集科普动画/纪录片（B站免费，约10-15分钟）", tag:"输入"}
     ],
     suggestion:{
       topics:[
-        (() => { const s = todayScience(); return `今日听读【${s.field}】${s.name}：${s.topic}`; })(),
-        "听读法：按专辑顺序每天听1集约10分钟，听完让孩子用「我学到了…」复述一句",
-        "今日思维游戏：" + pick(SCIENCE_GAMES,1,8)[0]
+        (() => { const s = todayScience(); return `今日推荐【${s.name}】：${s.topic}`; })(),
+        "看完让孩子用「我学到了…」复述一句，锻炼表达和逻辑",
+        "家长陪看并联系生活提问（这和我们家里什么东西一样？）"
       ],
-      note:"科普主粮用「科学队长」——北大/清华等科学家主讲的体系化音频（24档×52期，覆盖生命/物质/宇宙地球/工程技术），3-9岁。点下方按钮在喜马拉雅搜「科学队长」，按专辑顺序听；同一集可连听2天再换下一集。",
-      app:{name:"喜马拉雅", url:"https://apps.apple.com/cn/app/id876336838", icon:"🎧", desc:"听科学队长"}
+      note:"科普主粮全部用 B 站免费资源：《螺丝钉》讲生活科学原理、《像乌鸦一样思考》练科学思维、《海底小纵队》学生物、《平博士密码》讲物理宇宙。点下方按钮在 B 站搜索片名，选高清正版合集观看，同一部可连看 2 天再换。",
+      app:{name:"B站", url:"https://search.bilibili.com/all?keyword=" + encodeURIComponent(todayScience().kw), icon:"📺", desc:"B站免费看科普"}
     }
   },
   {
@@ -1480,14 +1516,13 @@ const BABY_DATA = [
   {
     name:"户外护眼", icon:"🌳", color:"#E883AF",
     tasks:[
-      {id:"b15", text: isWeekend() ? "家庭户外活动 ≥ 2 小时" : "幼儿园户外活动 ≥ 2 小时（园里保证）", tag:"护眼"},
-      {id:"b16", text:"远眺 / 眼保健操", tag:"护眼"}
+      {id:"b15", text: isWeekend() ? "家庭远眺、户外活动 1 小时" : "幼儿园户外活动 2 小时（园里保证）", tag:"护眼"}
     ]
   },
   {
     name:"作息", icon:"😴", color:"#F6BFDA",
     tasks:[
-      {id:"b17", text:"21:00 前上床睡觉", tag:"作息"}
+      {id:"b17", text:"22:00 上床睡觉", tag:"作息"}
     ]
   }
 ];
