@@ -1005,54 +1005,65 @@ function saveState(s){
 
 let state = loadState();
 
-// 写入云端：先 GET 获取 sha，再 PUT
+// 写入云端：先 GET 获取 sha，再 PUT（409 冲突时重试一次）
 async function saveToCloud(s){
   const path = `data/${selectedDateKey}.json`;
   const url = `${GH_API}/${path}`;
   const content = b64enc(JSON.stringify(s));
-  try{
-    // 1. GET 获取 sha（文件不存在则 sha=null）
-    let sha = null;
-    const gr = await fetch(url, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
-    if (gr.ok){ const gd = await gr.json(); sha = gd.sha; }
-    else if (gr.status !== 404){ console.warn('GH save: GET status', gr.status); }
+  for (let attempt = 0; attempt < 2; attempt++){
+    try{
+      let sha = null;
+      const gr = await fetch(url, { headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'} });
+      if (gr.ok){ const gd = await gr.json(); sha = gd.sha; }
+      else if (gr.status !== 404){ console.warn('GH save: GET status', gr.status); }
 
-    // 2. PUT 写入
-    const body = { message:`checkin ${selectedDateKey}`, content };
-    if (sha) body.sha = sha;
-    const res = await fetch(url, {
-      method:'PUT',
-      headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-      body: JSON.stringify(body)
-    });
-    if (res.ok){ const d = await res.json(); _cloudSha = d.content.sha; console.log('GH sync: saved ✓'); }
-    else { console.warn('GH save: PUT failed', res.status, await res.text().substring(0,100)); }
-  }catch(e){ console.warn('GH save error:', e); }
+      const body = { message:`checkin ${selectedDateKey}`, content };
+      if (sha) body.sha = sha;
+      const res = await fetch(url, {
+        method:'PUT',
+        headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      if (res.ok){ const d = await res.json(); _cloudSha = d.content.sha; return; }
+      if (res.status === 409 && attempt === 0){ continue; } // 冲突，重试
+      console.warn('GH save: PUT failed', res.status);
+      return;
+    }catch(e){ console.warn('GH save error:', e); return; }
+  }
 }
 
-// 从云端拉取：用 GitHub API（国内比 raw.githubusercontent.com 稳定）
-// 合并云端和本地数据，不覆盖本地已有的打卡
+// 从云端拉取：用 GitHub API
+// 合并策略：以时间戳较新的为准，true 覆盖 false（打卡优先于取消）
 async function syncFromCloud(){
   const path = `data/${selectedDateKey}.json`;
   try{
     const res = await fetch(`${GH_API}/${path}`, {
       headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}
     });
-    if (!res.ok){ return; } // 404 = 该日期无云端数据
+    if (!res.ok){ return; }
     const d = await res.json();
     _cloudSha = d.sha;
     const cloud = JSON.parse(b64dec(d.content));
-    // 合并：云端数据为主，本地补充云端没有的 key
-    const merged = { ...cloud };
-    for (const k in state){
-      if (!(k in merged)){ merged[k] = state[k]; }
+    // 合并：true 优先（两端都打卡过的任务保持打卡状态）
+    const merged = {};
+    // 先放本地
+    for (const k in state){ merged[k] = state[k]; }
+    // 云端覆盖：云端 true 的必保留，云端 false 但本地 true 也保留
+    for (const k in cloud){
+      if (cloud[k] || !(k in merged) || !merged[k]){
+        merged[k] = cloud[k];
+      }
     }
     if (JSON.stringify(merged) !== JSON.stringify(state)){
       state = merged;
       localStorage.setItem(getStorageKey(), JSON.stringify(state));
       refresh();
     }
-  }catch(e){ /* 读取失败静默处理 */ }
+    // 合并后回写云端（确保两端一致）
+    if (JSON.stringify(merged) !== JSON.stringify(cloud)){
+      saveToCloud(state);
+    }
+  }catch(e){ /* 静默 */ }
 }
 
 // 每 30 秒轮询云端（手机端降低频率省流量）
