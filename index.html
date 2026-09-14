@@ -2359,24 +2359,10 @@ function getReviewDays(period){
   return enumDays(from, today);
 }
 
-// 全局连续打卡天数：从今天往回数；今天还没打卡则从昨天起算（当天尚未打卡不清零）
-function globalStreak(){
-  const dayHasCheckin = (ds) => Object.values(ds || {}).some(v => v === true);
-  let d = new Date();
-  if (!dayHasCheckin(getDayState(fmtDay(d)))) d.setDate(d.getDate()-1);
-  let n = 0;
-  for (;;){
-    const k = fmtDay(d);
-    if (dayHasCheckin(getDayState(k))){ n++; d.setDate(d.getDate()-1); }
-    else break;
-  }
-  return n;
-}
-
-// 计算一组分类在指定日期范围内的统计（streakVal 可选：传入全局连续天数）
-function calcReview(days, cats, streakVal) {
+// 计算一组分类在指定日期范围内的统计
+function calcReview(days, cats) {
   const allTasks = cats.flatMap(c => c.tasks);
-  let totalDone = 0, totalAll = 0, bestRate = 0, streak = streakVal != null ? streakVal : 0;
+  let totalDone = 0, totalAll = 0, bestRate = 0, streak = 0;
   const catDone = {}, catTotal = {};
   const taskMissCount = {};
 
@@ -2401,13 +2387,16 @@ function calcReview(days, cats, streakVal) {
     });
   });
 
-  if (streakVal == null){
-    // 连续打卡天数（仅当未显式传入全局值时，在区间末端往回数）
-    for (let i = days.length - 1; i >= 0; i--) {
-      const ds = getDayState(days[i]);
-      if (Object.values(ds).some(v => v === true)) streak++;
-      else break;
-    }
+  // 区间内连续打卡天数：从区间最后一天（今天）往回数；
+  // 今天还没打卡则跳过今天继续往前，不把连续天数清零
+  let started = false;
+  for (let i = days.length - 1; i >= 0; i--) {
+    const ds = getDayState(days[i]);
+    const has = Object.values(ds).some(v => v === true);
+    if (!started && !has) continue;
+    started = true;
+    if (has) streak++;
+    else break;
   }
 
   const rate = totalAll ? Math.round(totalDone / totalAll * 100) : 0;
@@ -2415,8 +2404,8 @@ function calcReview(days, cats, streakVal) {
 }
 
 // 渲染单个分组（摇一摇 / 小哎呦）的复盘块
-function renderGroupReview(icon, who, days, cats, colors, streakVal) {
-  const r = calcReview(days, cats, streakVal);
+function renderGroupReview(icon, who, days, cats, colors) {
+  const r = calcReview(days, cats);
   const bars = Object.keys(r.catDone).map((name, i) => {
     const pct = r.catTotal[name] ? Math.round(r.catDone[name] / r.catTotal[name] * 100) : 0;
     return `
@@ -2474,16 +2463,13 @@ function renderReview() {
   const momColors = ["#E883AF", "#F6BFDA", "#FFB8D1", "#E883AF", "#F6BFDA", "#FFB8D1"];
   const babyColors = ["#FFB8D1", "#F6BFDA", "#E883AF", "#FFB8D1", "#F6BFDA", "#E883AF"];
 
-  // 全局连续天数（跨区间，所有标签页一致）
-  const streak = globalStreak();
-
-  // 摇一摇 + 小哎呦 分组复盘
-  const momHtml = renderGroupReview('🎀', '摇一摇', days, MOM_DATA, momColors, streak);
-  const babyHtml = renderGroupReview('💛', '小哎呦', days, BABY_DATA, babyColors, streak);
+  // 连续天数按当前标签区间分别计算（周度=本周内，月度=本月内，起始至今=全程）
+  const momHtml = renderGroupReview('🎀', '摇一摇', days, MOM_DATA, momColors);
+  const babyHtml = renderGroupReview('💛', '小哎呦', days, BABY_DATA, babyColors);
 
   // 当前区间整体完成情况
   const allCats = [...MOM_DATA, ...BABY_DATA];
-  const overall = calcReview(days, allCats, streak);
+  const overall = calcReview(days, allCats);
   const overallTitle = period === 'all' ? '📈 完整完成情况' : `📈 ${periodName}整体情况`;
   const overallHtml = `
     <div class="review-group review-overall">
