@@ -1068,10 +1068,54 @@ async function syncFromCloud(){
   }catch(e){ /* 静默 */ }
 }
 
+// 拉取云端全部历史日期数据，合并到 localStorage
+// 作用：手机/电脑两端的历史打卡互相补齐，复盘的起始日、完成率、连续天数才会一致
+let _historySynced = false;
+async function syncHistoryFromCloud(){
+  if (_historySynced) return;
+  try {
+    const res = await fetch(`${GH_API}/data`, {
+      headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}
+    });
+    if (!res.ok) return;
+    const files = await res.json();
+    if (!Array.isArray(files)) return;
+    let changed = false;
+    for (const f of files){
+      const m = f.name.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+      if (!m || !f.content) continue;
+      const dayKey = m[1];
+      let cloud = {};
+      try { cloud = JSON.parse(b64dec(f.content)); } catch(e){ continue; }
+      const storageKey = 'checkin_' + dayKey;
+      let local = {};
+      try { local = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch(e){}
+      // true 优先合并：云端打了卡的任务补进本地
+      const merged = { ...local };
+      let dayChanged = false;
+      for (const k in cloud){
+        if (cloud[k] === true && !merged[k]){ merged[k] = true; dayChanged = true; }
+        else if (!(k in merged)){ merged[k] = cloud[k]; dayChanged = true; }
+      }
+      if (dayChanged){
+        localStorage.setItem(storageKey, JSON.stringify(merged));
+        changed = true;
+      }
+    }
+    _historySynced = true;
+    if (changed){
+      const reviewView = document.getElementById('view-week');
+      if (reviewView && reviewView.classList.contains('active')) renderReview();
+    }
+  } catch(e){ /* 网络失败，下次轮询再试（不置 _historySynced） */ }
+}
+
 // 每 30 秒轮询云端（手机端降低频率省流量）
 setInterval(syncFromCloud, 30000);
 // 延迟 3 秒首次同步，让页面先渲染完
 setTimeout(syncFromCloud, 3000);
+// 延迟 4 秒回填全部历史（复盘/连续天数跨设备一致）
+setTimeout(syncHistoryFromCloud, 4000);
 
 /* ============ 日期切换（补打卡） ============ */
 function changeDate(delta) {
@@ -2304,10 +2348,24 @@ function getReviewDays(period){
   return enumDays(from, today);
 }
 
-// 计算一组分类在指定日期范围内的统计
-function calcReview(days, cats) {
+// 全局连续打卡天数：从今天往回数；今天还没打卡则从昨天起算（当天尚未打卡不清零）
+function globalStreak(){
+  const dayHasCheckin = (ds) => Object.values(ds || {}).some(v => v === true);
+  let d = new Date();
+  if (!dayHasCheckin(getDayState(fmtDay(d)))) d.setDate(d.getDate()-1);
+  let n = 0;
+  for (;;){
+    const k = fmtDay(d);
+    if (dayHasCheckin(getDayState(k))){ n++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return n;
+}
+
+// 计算一组分类在指定日期范围内的统计（streakVal 可选：传入全局连续天数）
+function calcReview(days, cats, streakVal) {
   const allTasks = cats.flatMap(c => c.tasks);
-  let totalDone = 0, totalAll = 0, bestRate = 0, streak = 0;
+  let totalDone = 0, totalAll = 0, bestRate = 0, streak = streakVal != null ? streakVal : 0;
   const catDone = {}, catTotal = {};
   const taskMissCount = {};
 
@@ -2332,11 +2390,13 @@ function calcReview(days, cats) {
     });
   });
 
-  // 连续打卡天数
-  for (let i = days.length - 1; i >= 0; i--) {
-    const ds = getDayState(days[i]);
-    if (allTasks.some(t => ds[t.id])) streak++;
-    else break;
+  if (streakVal == null){
+    // 连续打卡天数（仅当未显式传入全局值时，在区间末端往回数）
+    for (let i = days.length - 1; i >= 0; i--) {
+      const ds = getDayState(days[i]);
+      if (Object.values(ds).some(v => v === true)) streak++;
+      else break;
+    }
   }
 
   const rate = totalAll ? Math.round(totalDone / totalAll * 100) : 0;
@@ -2344,8 +2404,8 @@ function calcReview(days, cats) {
 }
 
 // 渲染单个分组（摇一摇 / 小哎呦）的复盘块
-function renderGroupReview(icon, who, days, cats, colors) {
-  const r = calcReview(days, cats);
+function renderGroupReview(icon, who, days, cats, colors, streakVal) {
+  const r = calcReview(days, cats, streakVal);
   const bars = Object.keys(r.catDone).map((name, i) => {
     const pct = r.catTotal[name] ? Math.round(r.catDone[name] / r.catTotal[name] * 100) : 0;
     return `
@@ -2403,13 +2463,16 @@ function renderReview() {
   const momColors = ["#E883AF", "#F6BFDA", "#FFB8D1", "#E883AF", "#F6BFDA", "#FFB8D1"];
   const babyColors = ["#FFB8D1", "#F6BFDA", "#E883AF", "#FFB8D1", "#F6BFDA", "#E883AF"];
 
+  // 全局连续天数（跨区间，所有标签页一致）
+  const streak = globalStreak();
+
   // 摇一摇 + 小哎呦 分组复盘
-  const momHtml = renderGroupReview('🎀', '摇一摇', days, MOM_DATA, momColors);
-  const babyHtml = renderGroupReview('💛', '小哎呦', days, BABY_DATA, babyColors);
+  const momHtml = renderGroupReview('🎀', '摇一摇', days, MOM_DATA, momColors, streak);
+  const babyHtml = renderGroupReview('💛', '小哎呦', days, BABY_DATA, babyColors, streak);
 
   // 当前区间整体完成情况
   const allCats = [...MOM_DATA, ...BABY_DATA];
-  const overall = calcReview(days, allCats);
+  const overall = calcReview(days, allCats, streak);
   const overallTitle = period === 'all' ? '📈 完整完成情况' : `📈 ${periodName}整体情况`;
   const overallHtml = `
     <div class="review-group review-overall">
