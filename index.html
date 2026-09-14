@@ -1083,10 +1083,18 @@ async function syncHistoryFromCloud(){
     let changed = false;
     for (const f of files){
       const m = f.name.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
-      if (!m || !f.content) continue;
+      if (!m) continue;
       const dayKey = m[1];
+      // 目录列表不含文件内容，需逐个请求单文件 API
       let cloud = {};
-      try { cloud = JSON.parse(b64dec(f.content)); } catch(e){ continue; }
+      try {
+        const fr = await fetch(f.url, {
+          headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}
+        });
+        if (!fr.ok) continue;
+        const fd = await fr.json();
+        cloud = JSON.parse(b64dec(fd.content));
+      } catch(e){ continue; }
       const storageKey = 'checkin_' + dayKey;
       let local = {};
       try { local = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch(e){}
