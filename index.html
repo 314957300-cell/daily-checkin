@@ -1070,17 +1070,18 @@ async function syncFromCloud(){
 
 // 拉取云端全部历史日期数据，合并到 localStorage
 // 作用：手机/电脑两端的历史打卡互相补齐，复盘的起始日、完成率、连续天数才会一致
-let _historySynced = false;
+let _historyInFlight = false;
 async function syncHistoryFromCloud(){
-  if (_historySynced) return;
+  if (_historyInFlight) return;
+  _historyInFlight = true;
   try {
     const res = await fetch(`${GH_API}/data`, {
       headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}
     });
-    if (!res.ok) return;
+    if (!res.ok){ console.warn('GH history: 列表请求失败', res.status); return; }
     const files = await res.json();
     if (!Array.isArray(files)) return;
-    let changed = false;
+    let changed = false, mergedDays = 0;
     for (const f of files){
       const m = f.name.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
       if (!m) continue;
@@ -1107,23 +1108,25 @@ async function syncHistoryFromCloud(){
       }
       if (dayChanged){
         localStorage.setItem(storageKey, JSON.stringify(merged));
-        changed = true;
+        changed = true; mergedDays++;
       }
     }
-    _historySynced = true;
+    console.log(`GH history: 历史回填完成，更新 ${mergedDays} 天`);
     if (changed){
       const reviewView = document.getElementById('view-week');
       if (reviewView && reviewView.classList.contains('active')) renderReview();
     }
-  } catch(e){ /* 网络失败，下次轮询再试（不置 _historySynced） */ }
+  } catch(e){ console.warn('GH history error:', e); }
+  finally { _historyInFlight = false; }
 }
 
 // 每 30 秒轮询云端（手机端降低频率省流量）
 setInterval(syncFromCloud, 30000);
 // 延迟 3 秒首次同步，让页面先渲染完
 setTimeout(syncFromCloud, 3000);
-// 延迟 4 秒回填全部历史（复盘/连续天数跨设备一致）
+// 历史回填：4 秒后首次，之后每 60 秒重试一次（失败也能自愈）
 setTimeout(syncHistoryFromCloud, 4000);
+setInterval(syncHistoryFromCloud, 60000);
 
 /* ============ 日期切换（补打卡） ============ */
 function changeDate(delta) {
@@ -2285,7 +2288,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     const memoPanel = document.getElementById('memoPanel');
     if (memoFab) memoFab.style.display = v === 'home' ? 'flex' : 'none';
     if (memoPanel && v !== 'home') memoPanel.style.display = 'none';
-    if (v==='week') renderReview();
+    if (v==='week'){ syncHistoryFromCloud(); renderReview(); }
     if (v==='topic') renderTopic();
     if (v==='meal') renderMeal();
     window.scrollTo({top:0, behavior:'smooth'});
