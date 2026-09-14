@@ -608,9 +608,10 @@
     display: flex; gap: 10px; margin-bottom: 14px;
   }
   .review-tab {
-    padding: 8px 22px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    flex: 1; padding: 8px 10px; border-radius: 999px; font-size: 14px; font-weight: 600;
     background: #fff; color: var(--text-light);
     border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
   }
   .review-tab.active {
     background: var(--primary); color: #fff; border-color: var(--primary);
@@ -894,6 +895,7 @@
       <div class="review-tabs">
         <button class="review-tab active" data-period="week" onclick="switchReview('week')">周度复盘</button>
         <button class="review-tab" data-period="month" onclick="switchReview('month')">月度复盘</button>
+        <button class="review-tab" data-period="all" onclick="switchReview('all')">起始至今</button>
       </div>
       <div class="review-range" id="reviewRange"></div>
       <div id="reviewContent"></div>
@@ -1363,22 +1365,22 @@ const PINYIN_GAMES = [
   "听音找卡：家长读，孩子找对应拼音"
 ];
 
-/* B站免费科普启蒙主粮（4岁+，全部 B 站可看的正版/合集资源） */
-const BILIBILI_SCIENCE = [
-  {name:"螺丝钉（The Fixies）", kw:"螺丝钉 动画片", topic:"俄罗斯科普动画，讲灯泡、冰箱、电话等家电背后的科学原理"},
-  {name:"像乌鸦一样思考", kw:"像乌鸦一样思考", topic:"日本NHK科学思维启蒙神片，教孩子观察→假设→验证"},
-  {name:"海底小纵队", kw:"海底小纵队", topic:"每集认识一种海洋生物，海洋科普+团队合作"},
-  {name:"平博士密码", kw:"平博士密码", topic:"诺贝尔奖科普动画，物理化学与宇宙常识轻松讲"},
-  {name:"恐龙列车", kw:"恐龙列车 中文版", topic:"吉姆·汉森出品，跟着小恐龙穿越时空认识古生物"},
-  {name:"啊！设计", kw:"啊设计 NHK", topic:"NHK儿童设计思维启蒙，观察生活中物品为什么这样设计"},
-  {name:"科学小子西德", kw:"科学小子西德", topic:"美国STEM启蒙动画，每个科学现象用一首歌讲明白"},
-  {name:"趣趣知知鸟", kw:"趣趣知知鸟", topic:"BBC低幼科普，认识上下、里外、冷热等基础概念"},
-  {name:"动物科普纪录片合集", kw:"儿童动物科普纪录片", topic:"认识真实动物的生活习性，选10分钟片段观看"},
-  {name:"宇宙星球科普合集", kw:"儿童宇宙科普", topic:"太阳、月亮、星星和太阳系，满足太空好奇心"},
-  {name:"人体科普动画合集", kw:"儿童人体科普动画", topic:"认识身体：心跳、消化、骨骼和五感怎么工作"},
-  {name:"自然现象科普合集", kw:"儿童自然现象科普", topic:"彩虹、闪电、四季、火山是怎么来的"}
+/* 喜马拉雅免费科普音频主粮（4岁+，护眼「听科普」，搜索关键词即可找到免费专辑） */
+const AUDIO_SCIENCE = [
+  {name:"十万个为什么（少儿版）", kw:"十万个为什么 少儿 免费", topic:"经典科普问答，天空、大地、生活里的为什么一个个讲明白"},
+  {name:"海底小纵队 广播剧", kw:"海底小纵队 广播剧", topic:"跟着巴克队长听海洋生物故事，每集认识一种海洋动物"},
+  {name:"神奇校车 有声故事", kw:"神奇校车 有声故事", topic:"卷毛老师开着神奇校车带你去人体、太空、海底探险"},
+  {name:"螺丝钉 音频版", kw:"螺丝钉 音频 故事", topic:"俄罗斯科普动画同名音频，讲灯泡、冰箱、电话背后的科学"},
+  {name:"小牛顿科学馆", kw:"小牛顿科学馆 音频", topic:"华语原创科普经典，生活现象和自然知识娓娓道来"},
+  {name:"恐龙百科故事", kw:"恐龙科普故事 儿童", topic:"霸王龙、三角龙、翼龙…听故事认识古生物"},
+  {name:"宇宙太空科普故事", kw:"儿童宇宙太空科普故事", topic:"太阳、月亮、星星和太阳系，满足太空好奇心"},
+  {name:"人体奥秘科普故事", kw:"儿童人体科普故事", topic:"心跳、消化、骨骼和五感是怎么工作的"},
+  {name:"动物世界科普故事", kw:"儿童动物科普故事", topic:"认识真实动物的生活习性与生存智慧"},
+  {name:"自然现象科普故事", kw:"儿童自然科普故事", topic:"彩虹、闪电、四季、火山是怎么来的"},
+  {name:"植物昆虫科普故事", kw:"儿童植物昆虫科普", topic:"花朵为什么开放、蚂蚁怎么搬家，观察身边的自然"},
+  {name:"科学家小时候的故事", kw:"科学家的故事 儿童", topic:"牛顿、居里夫人、爱因斯坦…听名人故事种下科学兴趣"}
 ];
-function todayScience(){ return BILIBILI_SCIENCE[dayOfYear() % BILIBILI_SCIENCE.length]; }
+function todayScience(){ return AUDIO_SCIENCE[dayOfYear() % AUDIO_SCIENCE.length]; }
 
 /* 居家跟练视频建议（苹果型/悬垂腹/膝盖友好） */
 const WORKOUTS = [
@@ -1603,16 +1605,16 @@ const BABY_DATA = [
   {
     name:"科普思维", icon:"🔬", color:"#F6BFDA",
     tasks:[
-      {id:"b12", text:"看 1 集科普动画/纪录片（B站免费，约10-15分钟）", tag:"输入"}
+      {id:"b12", text:"听 1 集科普音频/故事（喜马拉雅免费，约10-15分钟，护眼）", tag:"输入"}
     ],
     suggestion:{
       topics:[
         (() => { const s = todayScience(); return `今日推荐【${s.name}】：${s.topic}`; })(),
-        "看完让孩子用「我学到了…」复述一句，锻炼表达和逻辑",
-        "家长陪看并联系生活提问（这和我们家里什么东西一样？）"
+        "听完让孩子用「我学到了…」复述一句，锻炼表达和逻辑",
+        "听科普安排在洗漱、吃饭、睡前或车上：眼睛休息，耳朵学习"
       ],
-      note:"科普主粮全部用 B 站免费资源：《螺丝钉》讲生活科学原理、《像乌鸦一样思考》练科学思维、《海底小纵队》学生物、《平博士密码》讲物理宇宙。点下方按钮在 B 站搜索片名，选高清正版合集观看，同一部可连看 2 天再换。",
-      app:{name:"B站", url:"https://search.bilibili.com/all?keyword=" + encodeURIComponent(todayScience().kw), icon:"📺", desc:"B站免费看科普"}
+      note:"科普改为「听」为主、保护视力：喜马拉雅有大量免费少儿科普音频，《十万个为什么》《海底小纵队广播剧》《神奇校车》等。点下方按钮直接在喜马拉雅搜索当天推荐关键词，选免费专辑播放，同一部可连听 2 天再换。",
+      app:{name:"喜马拉雅", url:"https://www.ximalaya.com/search/" + encodeURIComponent(todayScience().kw), icon:"🎧", desc:"喜马拉雅免费听科普", web:true}
     }
   },
   {
@@ -1680,7 +1682,7 @@ function renderCategories(container, data, isBaby) {
           <ul>${s.topics.map(t=>`<li>${t}</li>`).join('')}</ul>
           ${tipsHtml}
           ${s.note?`<div class="tip">${s.note}</div>`:''}
-          ${s.app?`<a href="${s.app.url}" target="_blank" class="app-link-btn" data-app-name="${s.app.name}">${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
+          ${s.app?`<a href="${s.app.url}" target="_blank" class="app-link-btn" data-app-name="${s.app.name}"${s.app.web?' data-web="1"':''}>${s.app.icon} 打开${s.app.name}${s.app.desc?` · ${s.app.desc}`:''}</a>`:''}
         </div>
       `;
     }
@@ -2238,7 +2240,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
   });
 });
 
-/* ============ 复盘（周度 / 月度） ============ */
+/* ============ 复盘（周度 / 月度 / 起始至今） ============ */
 let currentReviewPeriod = 'week';
 
 function getLastNDays(n) {
@@ -2246,7 +2248,20 @@ function getLastNDays(n) {
   for (let i=n-1; i>=0; i--) {
     const d = new Date();
     d.setDate(d.getDate()-i);
-    days.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+    days.push(fmtDay(d));
+  }
+  return days;
+}
+
+function fmtDay(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// 枚举两个日期之间的所有天（含首尾）
+function enumDays(from, to){
+  const days = [];
+  for (let d = new Date(from); d <= to; d.setDate(d.getDate()+1)) {
+    days.push(fmtDay(d));
   }
   return days;
 }
@@ -2267,14 +2282,26 @@ function getStartDate() {
 
 // 获取从起始日到今天的所有日期
 function getAllDaysSinceStart() {
-  const start = getStartDate();
-  const days = [];
+  return enumDays(new Date(getStartDate()), new Date());
+}
+
+// 复盘区间：周=本周一至今，月=本月1号至今，all=打卡首日至今；
+// 自然起点早于打卡首日时，以打卡首日为起点（首月/首周从打卡第一天算，下月/下周起自动按自然周期）
+function getReviewDays(period){
   const today = new Date();
-  const s = new Date(start);
-  for (let d = new Date(s); d <= today; d.setDate(d.getDate()+1)) {
-    days.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  const firstDay = new Date(getStartDate());
+  let from;
+  if (period === 'week'){
+    from = new Date(today);
+    const dow = from.getDay(); // 0=周日
+    from.setDate(from.getDate() - (dow === 0 ? 6 : dow - 1)); // 回到周一
+  } else if (period === 'month'){
+    from = new Date(today.getFullYear(), today.getMonth(), 1);
+  } else {
+    from = firstDay;
   }
-  return days;
+  if (from < firstDay) from = new Date(firstDay);
+  return enumDays(from, today);
 }
 
 // 计算一组分类在指定日期范围内的统计
@@ -2366,13 +2393,12 @@ function switchReview(period) {
 
 function renderReview() {
   const period = currentReviewPeriod;
-  const n = period === 'week' ? 7 : 30;
-  const days = getLastNDays(n);
-  const label = period === 'week' ? '周' : '月';
+  const days = getReviewDays(period);
+  const periodName = {week:'本周', month:'本月', all:'起始日至今'}[period];
 
-  const startDay = days[0].slice(5);
-  const endDay = days[days.length - 1].slice(5);
-  document.getElementById('reviewRange').textContent = `${days[0].slice(0,4)}年 ${startDay} ~ ${endDay}（近${n}天）`;
+  const startDay = days[0], endDay = days[days.length-1];
+  document.getElementById('reviewRange').textContent =
+    `${startDay} ~ ${endDay}（${periodName} · 共 ${days.length} 天）`;
 
   const momColors = ["#E883AF", "#F6BFDA", "#FFB8D1", "#E883AF", "#F6BFDA", "#FFB8D1"];
   const babyColors = ["#FFB8D1", "#F6BFDA", "#E883AF", "#FFB8D1", "#F6BFDA", "#E883AF"];
@@ -2381,17 +2407,16 @@ function renderReview() {
   const momHtml = renderGroupReview('🎀', '摇一摇', days, MOM_DATA, momColors);
   const babyHtml = renderGroupReview('💛', '小哎呦', days, BABY_DATA, babyColors);
 
-  // 整体完成情况（起始日 ~ 今日）
-  const allDays = getAllDaysSinceStart();
+  // 当前区间整体完成情况
   const allCats = [...MOM_DATA, ...BABY_DATA];
-  const overall = calcReview(allDays, allCats);
-  const startDate = getStartDate();
+  const overall = calcReview(days, allCats);
+  const overallTitle = period === 'all' ? '📈 完整完成情况' : `📈 ${periodName}整体情况`;
   const overallHtml = `
     <div class="review-group review-overall">
-      <h3 class="review-group-title">📈 完整完成情况</h3>
+      <h3 class="review-group-title">${overallTitle}</h3>
       <div class="overall-info">
-        <span>起始日：${startDate}</span>
-        <span>累计天数：${allDays.length} 天</span>
+        <span>起始日：${startDay}</span>
+        <span>统计天数：${days.length} 天</span>
       </div>
       <div class="week-overview">
         <div class="week-card"><div class="num">${overall.totalDone}</div><div class="label">累计已打卡</div></div>
@@ -2419,12 +2444,11 @@ function setupAppLinks(){
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   if (!isIOS) return; // 桌面/安卓保留 https 链接
   document.querySelectorAll('.app-link-btn').forEach(a => {
+    if (a.getAttribute('data-web') === '1') return; // 搜索页等网页链接保持 https
     const name = a.getAttribute('data-app-name');
     if (APP_STORE_IDS[name]) {
       // 直接改 href —— 用户点击时走原生 <a> 导航，iOS 不拦截
       a.setAttribute('href', 'itms-apps://itunes.apple.com/app/id' + APP_STORE_IDS[name]);
-      // iOS 上 target="_blank" 会在新标签打开但 itms-apps:// 仍能唤起 App Store
-      // 保持不变即可
     }
   });
 }
