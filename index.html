@@ -976,6 +976,19 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
+/* ============ 跨天自动刷新 ============
+   修复 bug：页面被挂到后台（尤其 iOS 主屏 PWA 长期挂起）后，
+   再次打开时不会重新加载，导致每日一言/话题/科普/建议等
+   按 dayOfYear() 计算的内容一直停留在旧日期。
+   检测到日期跨天即整页重载，顺带重新同步云端打卡数据。 */
+let _loadedDateKey = getTodayKey();
+function _reloadIfNewDay(){
+  if (getTodayKey() !== _loadedDateKey) location.reload();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) _reloadIfNewDay(); });
+window.addEventListener('pageshow', e => { if (e.persisted) _reloadIfNewDay(); });
+setInterval(_reloadIfNewDay, 30 * 60 * 1000); // 兜底：每30分钟检查一次
+
 document.getElementById('coverDate').textContent = `${getTodayStr()} · ${getWeekStr()} · ${getLunarStr()}`;
 document.getElementById('curDate').textContent = `${getTodayStr()} ${getWeekStr()}`;
 
@@ -1158,7 +1171,7 @@ function updateDateUI() {
 
 /* ============ 金句池 ============ */
 const QUOTES = [
-  {cn:"千里之行，始于足下。", en:"A journey of a thousand miles begins with a single step.", a:"老子 / Laozi"},
+  {cn:"苔花如米小，也学牡丹开。", en:"Though small as rice, the moss flower blooms like the peony.", a:"袁枚 / Yuan Mei"},
   {cn:"爱自己，是终身浪漫的开始。", en:"To love oneself is the beginning of a lifelong romance.", a:"王尔德 / Oscar Wilde"},
   {cn:"种一棵树最好的时间是十年前，其次是现在。", en:"The best time to plant a tree was ten years ago. The second best time is now.", a:"谚语 / Proverb"},
   {cn:"日拱一卒，功不唐捐。", en:"One step a day, and no effort is ever wasted.", a:"胡适 / Hu Shi"},
